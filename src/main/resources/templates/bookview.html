@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        async function fetchAllBooks() {
+            // Fetch book information from the API
+            const response = await fetch('/book/get-all');
+            if (response.ok) {
+                const books = await response.json();
+                displayBooks(books);
+            } else {
+                alert("Failed to fetch book information.");
+            }
+        }
+
+        function displayBooks(books) {
+            const tableBody = document.getElementById('bookTableBody');
+            tableBody.innerHTML = ''; // Clear any existing content
+
+            books.forEach(book => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${book.id}</td>
+                    <td>${book.name}</td>
+                    <td>${book.author}</td>
+                    <td>${book.isbn}</td>
+                    <td>${book.price}</td>
+                    <td>${book.pageNumber}</td>
+                    <td>${book.publicationDate}</td>
+                    <td>${book.publisher}</td>
+                    <td>${book.stockNumber}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fetch all books when the page loads
+        window.onload = fetchAllBooks;
+    </script>
+</head>
+<body>
+    <h1>Book List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Author</th>
+                <th>ISBN</th>
+                <th>Price</th>
+                <th>Page Number</th>
+                <th>Publication Date</th>
+                <th>Publisher</th>
+                <th>Stock Number</th>
+            </tr>
+        </thead>
+        <tbody id="bookTableBody">
+            <!-- Book rows will be appended here -->
+        </tbody>
+    </table>
+</body>
+</html>

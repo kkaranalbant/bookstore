@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Credit Card</title>
+    <script>
+        async function removeCard() {
+            const cardRemovingDao = {
+                cardNo: document.getElementById('cardNo').value
+            };
+
+            try {
+                const response = await fetch('/card/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(cardRemovingDao)
+                });
+
+                if (response.ok) {
+                    alert("Credit card removed successfully.");
+                    // Optionally, redirect to another page after successful removal
+                    // window.location.href = '/profile.html';
+                } else {
+                    alert("Failed to remove credit card.");
+                }
+            } catch (error) {
+                alert("An error occurred while removing credit card.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Remove Credit Card</h1>
+    <form onsubmit="event.preventDefault(); removeCard();">
+        <label for="cardNo">Card Number:</label>
+        <input type="text" id="cardNo" name="cardNo" required><br>
+
+        <button type="submit">Remove Card</button>
+    </form>
+</body>
+</html>

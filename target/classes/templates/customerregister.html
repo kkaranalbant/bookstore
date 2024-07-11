@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Customer Information</title>
+    <script>
+        async function addCustomer() {
+            const name = document.getElementById('name').value;
+            const lastname = document.getElementById('lastname').value;
+            const gender = document.getElementById('gender').value;
+            const birthDate = document.getElementById('birthDate').value;
+            const address = document.getElementById('address').value;
+
+            const customer = {
+                name: name,
+                lastname: lastname,
+                gender: gender,
+                birthDate: birthDate,
+                address: address
+            };
+
+            try {
+                const response = await fetch('/customer/addv2', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(customer)
+                });
+
+                if (response.ok) {
+                    alert("Customer information added successfully.");
+                    // Optionally, redirect to another page after successful addition
+                    // window.location.href = '/success.html';
+                } else {
+                    alert("Failed to add customer information.");
+                }
+            } catch (error) {
+                alert("An error occurred while adding customer information.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Add Customer Information</h1>
+    <form onsubmit="event.preventDefault(); addCustomer();">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="lastname">Last Name:</label>
+        <input type="text" id="lastname" name="lastname" required><br>
+
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+        </select><br>
+
+        <label for="birthDate">Birth Date:</label>
+        <input type="date" id="birthDate" name="birthDate" required><br>
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required><br>
+
+        <button type="submit">Add Customer</button>
+    </form>
+</body>
+</html>
