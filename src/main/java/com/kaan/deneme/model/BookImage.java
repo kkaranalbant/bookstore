@@ -35,6 +35,6 @@ public class BookImage {
     @Column (name = "UploadDate" , nullable = false)
     private LocalDateTime uploadDate ;
     
-    @Column (name = "Url" , nullable = true)
-    private String url ;
+    @Column (name = "path" , nullable = true)
+    private String path ;
 }

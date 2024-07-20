@@ -19,4 +19,5 @@ public interface CardRepo extends JpaRepository <Card , Long> {
     public List <Card> findAllByCustomerId (Long customerId) ;
     public Optional<Card> findByCardNo (String cardNo) ;
     public void deleteByCardNo (String cardNo) ;
+    public void deleteByCustomerId (Long customerId) ;
 }

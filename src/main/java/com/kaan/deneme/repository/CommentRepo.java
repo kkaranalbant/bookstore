@@ -20,4 +20,8 @@ public interface CommentRepo extends JpaRepository <Comment , Long>{
     
     public List <Comment> findAllByBookId (Long bookId) ;
     
+    public void deleteByBookId (Long bookId) ;
+    
+    public void deleteByCustomerId (Long customerId) ;
+    
 }

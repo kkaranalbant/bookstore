@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Sepet Listesi</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+            .remove-button, .truncate-button, .purchase-button {
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                padding: 6px 12px;
+                cursor: pointer;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+            .purchase-button {
+                background-color: #28a745; /* Yeşil renk */
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Sepet Listesi</h1>
+        <div>
+            <button class="truncate-button" onclick="truncateBasket()">Sepeti Boşalt</button>
+            <button class="purchase-button" onclick="purchaseBasket()">Satın Al</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kitap Adı</th>
+                    <th>Yazar</th>
+                    <th>ISBN</th>
+                    <th>Fiyat (TL)</th>
+                    <th>Sayfa Sayısı</th>
+                    <th>Yayın Tarihi</th>
+                    <th>Yayınevi</th>
+                    <th>Stok Adedi</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Thymeleaf iterasyonu ile her bir kitap için satır oluşturulacak -->
+                <tr th:each="book : ${basket}">
+                    <td th:text="${book.name}">Kitap Adı</td>
+                    <td th:text="${book.author}">Yazar</td>
+                    <td th:text="${book.isbn}">ISBN</td>
+                    <td th:text="${book.price}">Fiyat</td>
+                    <td th:text="${book.pageNumber}">Sayfa Sayısı</td>
+                    <td th:text="${book.publicationDate}">Yayın Tarihi</td>
+                    <td th:text="${book.publisher}">Yayınevi</td>
+                    <td th:text="${book.stockNumber}">Stok Adedi</td>
+                    <td>
+                        <button class="remove-button" th:attr="data-book-id=${book.id}" onclick="removeFromBasket(this)">Sepetten Kaldır</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <script th:inline="javascript">
+            function removeFromBasket(button) {
+                const bookId = button.getAttribute('data-book-id');
+
+                const elementIdDao = {
+                    id: parseInt(bookId)
+                };
+
+                fetch('/basket/remove', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(elementIdDao)
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('Kitap başarıyla sepetten kaldırıldı.');
+                                location.reload(); // Sayfayı yenile
+                            } else {
+                                alert('Kitap sepetten kaldırılırken bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Remove from basket error:', error);
+                        });
+            }
+
+            function truncateBasket() {
+                fetch('/basket/truncate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('Sepet başarıyla boşaltıldı.');
+                                location.reload(); // Sayfayı yenile
+                            } else {
+                                alert('Sepet boşaltılırken bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Truncate basket error:', error);
+                        });
+            }
+
+            function purchaseBasket() {
+                fetch('/customer/purchase', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('Satın alma işlemi başarıyla gerçekleştirildi.');
+                                location.reload(); // Sayfayı yenile
+                            } else {
+                                alert('Satın alma işlemi sırasında bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Purchase basket error:', error);
+                        });
+            }
+        </script>
+    </body>
+</html>

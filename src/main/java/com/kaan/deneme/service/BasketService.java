@@ -44,6 +44,10 @@ public class BasketService {
         return books ;
     }
     
+    public List <Basket> getAllBasketsContainsBookId (Long bookId) {
+        return basketRepo.findAllByBookId(bookId) ;
+    }
+    
     public void removeFromBasketById (Long customerId , ElementIdDao bookIdDao) {
         Optional <Basket> basketOptional = basketRepo.findByCustomerIdAndBookId(customerId, bookIdDao.id());
         Basket basket = basketOptional.get() ;
@@ -66,6 +70,18 @@ public class BasketService {
         else {
             throw new OutOfStockException ();
         }
+    }
+    
+    public void deleteFromBasketsByBookId (Long bookId) {
+        basketRepo.deleteByBookId(bookId);
+    }
+    
+    public void deleteBasketByCustomerId (Long customerId) {
+        basketRepo.deleteByCustomerId(customerId);
+    }
+    
+    void addBasket (List<Basket> baskets) {
+        basketRepo.saveAll(baskets);
     }
         
 }

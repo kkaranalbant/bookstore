@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -52,15 +54,19 @@ public class FavouriteController {
     }
     
     @GetMapping ("/get-all-customer")
-    public List <Favourite> getAllFavouriteByCustomerId (HttpServletRequest request) {
+    public ModelAndView getAllFavouriteByCustomerId (HttpServletRequest request) {
         String jwt = jwtService.getJwt(request);
         Long customerId = jwtService.getId(jwt);
-        return favouriteService.getAllFavuriteByCustomerId(customerId);
+        List <Favourite> favs =  favouriteService.getAllFavuriteByCustomerId(customerId);
+        ModelAndView mv = new ModelAndView () ;
+        mv.addObject("favs", favs);
+        mv.setViewName("customer-fav");
+        return mv ;
     }
     
     @GetMapping ("/get-all-book")
-    public Integer getAllFavouriteNumberByBookId (@RequestBody ElementIdDao elementIdDao) {
-        return favouriteService.getAllFavouriteNumberByBookId(elementIdDao);
+    public Integer getAllFavouriteNumberByBookId (@RequestParam Long id) {
+        return favouriteService.getAllFavouriteNumberByBookId(new ElementIdDao(id));
     }
 
 }

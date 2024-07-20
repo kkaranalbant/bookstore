@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.exception;
 
+import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -68,6 +69,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity <ErrorResponse> handleUnauthorizedCardProcessException (UnauthorizedCardProcessException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Out Of Stock", HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler (IOException.class) 
+    public ResponseEntity<ErrorResponse> hangleIOException (IOException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST) ;
     }
 
     // Genel bir exception handler

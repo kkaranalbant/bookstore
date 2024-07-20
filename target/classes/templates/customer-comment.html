@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Customer Comments</title>
+        <script>
+            function deleteComment(commentId) {
+                fetch('/comment/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({id: commentId}) // ElementIdDao ile eşleşecek
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload(); // Sayfayı yenile
+                    } else {
+                        alert('Failed to delete comment');
+                    }
+                });
+            }
+
+            function showUpdateField(commentId) {
+                document.getElementById('update-field-' + commentId).style.display = 'block';
+            }
+
+            function updateComment(commentId) {
+                const newText = document.getElementById('update-text-' + commentId).value;
+                fetch('/comment/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({commentId: commentId, text: newText}) // CommentUpdatingDao ile eşleşecek
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload(); // Sayfayı yenile
+                    } else {
+                        alert('Failed to update comment');
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Customer Comments</h1>
+        <table border="1">
+            <tr>
+                <th>Comment ID</th>
+                <th>Comment Content</th>
+                <th>Book ID</th>
+                <th>Actions</th>
+            </tr>
+            <tr th:each="comment : ${comments}">
+                <td th:text="${comment.id}"></td>
+                <td th:text="${comment.context}"></td>
+                <td th:text="${comment.book.id}"></td>
+                <td>
+                    <button th:attr="onclick='deleteComment(' + ${comment.id} + ')'">Delete Comment</button>
+                    <button th:attr="onclick='showUpdateField(' + ${comment.id} + ')'">Edit Comment</button>
+                    <div th:id="'update-field-' + ${comment.id}" style="display: none;">
+                        <input type="text" th:id="'update-text-' + ${comment.id}" />
+                        <button th:attr="onclick='updateComment(' + ${comment.id} + ')'">Update</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

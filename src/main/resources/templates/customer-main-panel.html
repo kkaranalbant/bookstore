@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Kitap Mağazası</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+
+            header {
+                background-color: #f8f8f8;
+                padding: 20px;
+                text-align: center;
+                border-bottom: 1px solid #ccc;
+            }
+
+            nav button {
+                margin: 5px;
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            #book-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 20px;
+            }
+
+            .book-item {
+                margin: 10px;
+                text-align: center;
+            }
+
+            .book-image {
+                width: 150px;
+                height: 200px;
+                background-size: cover;
+                background-position: center;
+                border: 1px solid #ccc;
+                cursor: pointer;
+            }
+
+            .book-title {
+                margin-top: 10px;
+                font-size: 14px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Kitap Mağazası</h1>
+            <nav>
+                <button onclick="updateCustomerInfo()">Bilgilerimi Guncelle</button>
+                <button onclick="viewCustomerInfo()">Bilgilerimi Goruntule</button>
+                <button onclick="viewFavs()">Favorilerim</button>
+                <button onclick="viewBasket()">Sepetim</button>
+                <button onclick="addBalance()">Bakiye Yukle</button>
+                <button onclick="viewComments()">Yorumlarim</button>
+                <button onclick= "logout()"> Cikis Yap </button>
+
+            </nav>
+        </header>
+        <main>
+            <div id="book-container">
+                <!-- Kitap resimleri ve isimleri buraya yüklenecek -->
+            </div>
+        </main>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch('/book/get-all')
+                        .then(response => response.json())
+                        .then(books => {
+                            const bookContainer = document.getElementById('book-container');
+                            books.forEach(book => {
+                                const bookItem = document.createElement('div');
+                                bookItem.className = 'book-item';
+
+                                const bookImage = document.createElement('div');
+                                bookImage.className = 'book-image';
+                                bookImage.setAttribute('data-book-id', book.id);
+                                bookImage.addEventListener('click', () => viewBookDetails(book.id));
+
+                                bookItem.appendChild(bookImage);
+
+                                const bookTitle = document.createElement('div');
+                                bookTitle.className = 'book-title';
+                                bookTitle.textContent = book.name;
+                                bookItem.appendChild(bookTitle);
+
+                                bookContainer.appendChild(bookItem);
+
+                                fetch(`/book/get-image?id=${book.id}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.images && data.images.length > 0) {
+                                                const imageUrl = `data:image/jpeg;base64,${data.images[0]}`;
+                                                bookImage.style.backgroundImage = `url(${imageUrl})`;
+                                            } else {
+                                                bookImage.style.backgroundImage = 'url(/default-image.png)'; // Default image if no image is found
+                                            }
+                                        });
+                            });
+                        });
+            });
+
+            function viewFavs() {
+                window.location.href = "/fav/get-all-customer";
+            }
+
+            function viewBasket() {
+                window.location.href = "/basket/get";
+            }
+
+            function viewBookDetails(bookId) {
+                window.location.href = `/book/get?id=${bookId}`;
+            }
+
+            function addBalance() {
+                window.location.href = "/customer/add-balance-panel";
+            }
+
+            function updateCustomerInfo() {
+                window.location.href = "/customer/updatev2-panel";
+            }
+
+            function viewCustomerInfo() {
+                window.location.href = "/customer/getv2-panel";
+            }
+            function viewComments() {
+                window.location.href = "/comment/getv3";
+            }
+
+            function logout() {
+                window.location.href = "/logout";
+            }
+
+        </script>
+    </body>
+</html>

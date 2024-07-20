@@ -18,7 +18,14 @@ import org.springframework.stereotype.Repository;
 public interface BasketRepo extends JpaRepository<Basket, Long> {
 
     public List<Basket> findAllByCustomerId(Long customerId);
+    
+    public List <Basket> findAllByBookId (Long bookId) ;
 
     public Optional<Basket> findByCustomerIdAndBookId(Long customerId, Long bookId);
+    
+    public void deleteByBookId (Long bookId) ;
+    
+    public void deleteByCustomerId (Long customerId) ;
+    
 
 }

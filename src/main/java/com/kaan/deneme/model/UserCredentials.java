@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,14 +34,16 @@ public class UserCredentials implements UserDetails {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id ;
 
+    @Column(unique = true , nullable = false)
     private String username;
+    
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @ManyToOne
-    @JoinColumn(name = "PersonId")
+    @JoinColumn(name = "PersonId" , referencedColumnName = "id")
     private Person person;
 
     @Override

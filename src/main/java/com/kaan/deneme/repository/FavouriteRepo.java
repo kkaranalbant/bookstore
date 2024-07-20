@@ -22,4 +22,8 @@ public interface FavouriteRepo extends JpaRepository <Favourite , Long> {
     
     public void deleteByCustomerIdAndBookId (Long customerId , Long bookId) ;
     
+    public void deleteByBookId (Long bookId) ;
+    
+    public void deleteByCustomerId (Long customerId) ;
+    
 }

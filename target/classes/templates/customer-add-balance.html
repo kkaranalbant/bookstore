@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Balance Load</title>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Fetch card numbers and populate the dropdown
+                fetch('/card/get-all')
+                        .then(response => response.json())
+                        .then(cards => {
+                            const dropdown = document.getElementById('cardNo');
+                            if (cards.length === 0) {
+                                dropdown.innerHTML = '<option value="">No cards available</option>';
+                                document.getElementById('submitButton').disabled = true;
+                            } else {
+                                cards.forEach(card => {
+                                    const option = document.createElement('option');
+                                    option.value = card.cardNo;
+                                    option.text = card.cardNo;
+                                    dropdown.add(option);
+                                });
+                                document.getElementById('submitButton').disabled = false;
+                            }
+                        })
+                        .catch(error => console.error('Error fetching cards:', error));
+            });
+
+            function addBalance() {
+                const cardNo = document.getElementById('cardNo').value;
+                const amount = document.getElementById('amount').value;
+
+                if (!cardNo || !amount) {
+                    alert('Please select a card and enter an amount.');
+                    return;
+                }
+
+                const addBalanceRequest = {
+                    cardNo: cardNo,
+                    amount: parseInt(amount)
+                };
+
+                fetch('/customer/add-balance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(addBalanceRequest)
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('Balance added successfully');
+                            } else {
+                                alert('Failed to add balance');
+                            }
+                        })
+                        .catch(error => console.error('Error adding balance:', error));
+            }
+
+            function validateForm() {
+                const dropdown = document.getElementById('cardNo');
+                const submitButton = document.getElementById('submitButton');
+                submitButton.disabled = !dropdown.value || dropdown.options.length === 0;
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Balance Load</h1>
+        <form onsubmit="event.preventDefault();
+                addBalance();">
+            <label for="cardNo">Select Card Number:</label>
+            <select id="cardNo" name="cardNo" required onchange="validateForm()">
+                <!-- Options will be populated here -->
+            </select>
+            <br><br>
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" required>
+            <br><br>
+            <button id="submitButton" type="submit">Bakiye Yükle</button>
+        </form>
+    </body>
+</html>

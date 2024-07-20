@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Book Panel</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f4f4f4;
+            }
+
+            .panel {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                cursor: pointer;
+                font-size: 16px;
+                width: 200px;
+            }
+
+            .btn-add {
+                background-color: green;
+            }
+
+            .btn-update {
+                background-color: blue;
+            }
+
+            .btn-delete {
+                background-color: red;
+            }
+
+            .btn-view {
+                background-color: orange;
+            }
+
+            .btn-logout {
+                background-color: black
+            }
+        </style>
+        <script>
+            function navigateTo(endpoint) {
+                window.location.href = endpoint;
+            }
+        </script>
+    </head>
+    <body>
+        <div class="panel">
+            <button class="btn btn-add" onclick="navigateTo('/book/add-panel')">Add Book</button>
+            <button class="btn btn-update" onclick="navigateTo('/book/update-panel')">Update Book</button>
+            <button class="btn btn-delete" onclick="navigateTo('/book/delete-panel')">Delete Book</button>
+            <button class="btn btn-view" onclick="navigateTo('/book/get-all-auth')">View Book</button>
+
+            <button class="btn btn-add" onclick="navigateTo('/customer/addv1-panel')">Add Customer</button>
+            <button class="btn btn-view" onclick="navigateTo('/customer/getv1-panel')">View Customer</button>
+            <button class="btn btn-delete" onclick="navigateTo('/customer/deletev1-panel')">Delete Customer</button>
+            <button class="btn btn-update" onclick="navigateTo('/customer/updatev1-panel')">Update Customer</button>
+
+            <button class="btn btn-logout" onclick="navigateTo('/logout')">Logout</button>
+
+        </div>
+    </body>
+</html>

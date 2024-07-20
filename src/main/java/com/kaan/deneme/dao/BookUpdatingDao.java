@@ -14,6 +14,10 @@ import lombok.Data;
 @Data
 public class BookUpdatingDao {
     
+    private Long oldId ;
+    
+    private Long id ;
+    
     private String name ; 
     
     private String author ; 

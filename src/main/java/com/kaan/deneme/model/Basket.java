@@ -40,5 +40,9 @@ public class Basket {
         this.customer = customer ;
         this.book = book ;
     }
+    
+    public Basket () {
+        
+    }
 
 }

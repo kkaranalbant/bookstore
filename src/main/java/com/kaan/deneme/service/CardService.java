@@ -12,10 +12,12 @@ import com.kaan.deneme.exception.UnauthorizedCardProcessException;
 import com.kaan.deneme.model.Card;
 import com.kaan.deneme.model.Customer;
 import com.kaan.deneme.repository.CardRepo;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,7 +31,7 @@ public class CardService {
     private CustomerService customerService ;
 
     @Autowired
-    public CardService(CardRepo cardRepo , CustomerService customerService) {
+    public CardService(CardRepo cardRepo , @Lazy CustomerService customerService) {
         this.cardRepo = cardRepo;
         this.customerService = customerService ;
     }
@@ -65,6 +67,7 @@ public class CardService {
         cardRepo.save(card);
     }
     
+    @Transactional
     public void removeCardById (Long customerId , CardRemovingDao cardRemovingDao) throws InvalidCredentialsException , UnauthorizedCardProcessException{
         String cardNo = cardRemovingDao.getCardNo() ;
         Optional <Card> cardOptional =  cardRepo.findByCardNo(cardNo);
@@ -80,6 +83,10 @@ public class CardService {
     
     public List <Card> getCardsByCustomerId (Long customerId) {
         return cardRepo.findAllByCustomerId(customerId);
-    } 
+    }
+    
+    public void deleteCardByCustomerId (Long customerId) {
+        cardRepo.deleteByCustomerId(customerId);
+    }
     
 }

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <link rel="stylesheet" href="style.css" type="text/css"/>
+        <title>Kitap Detayları</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+            }
+
+            .book-details {
+                max-width: 600px;
+                margin: auto;
+                border: 1px solid #ccc;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .book-images {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                margin: 20px auto;
+            }
+
+            .book-image {
+                width: 150px;
+                height: 200px;
+                background-size: cover;
+                background-position: center;
+                border: 1px solid #ccc;
+                margin: 10px;
+            }
+
+            .book-name {
+                font-size: 24px;
+                margin: 10px 0;
+            }
+
+            .book-author, .book-isbn, .book-price, .book-pages, .book-publication-date, .book-publisher, .book-stock, .book-id {
+                font-size: 18px;
+                margin: 10px 0;
+            }
+
+            .book-author span, .book-isbn span, .book-price span, .book-pages span, .book-publication-date span, .book-publisher span, .book-stock span {
+                font-weight: bold;
+            }
+
+            .book-price span {
+                color: green;
+            }
+
+            .book-isbn, .book-price, .book-pages, .book-publication-date, .book-publisher, .book-stock, .book-id {
+                text-align: left;
+            }
+
+            .comments-section {
+                margin-top: 20px;
+                text-align: left;
+            }
+
+            .comment {
+                border-top: 1px solid #ccc;
+                padding-top: 10px;
+                margin-top: 10px;
+            }
+
+            .comment .author {
+                font-weight: bold;
+            }
+
+            .comment .date {
+                font-size: 12px;
+                color: gray;
+            }
+
+            .comment-form {
+                margin-top: 20px;
+                text-align: left;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .comment-form textarea {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                resize: vertical;
+            }
+
+            .comment-form button {
+                align-self: flex-end;
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+            }
+
+            .favorite-buttons {
+                margin-top: 20px;
+            }
+
+            .favorite-buttons button {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+
+            .favorite-button {
+                background-color: #ff6347;
+            }
+
+            .unfavorite-button {
+                background-color: #555;
+            }
+
+            .favorite-count {
+                margin-top: 20px;
+                font-size: 18px;
+            }
+
+            .add-to-cart-button {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                background-color: #28a745;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+
+            .add-to-cart-button:hover {
+                background-color: #218838;
+            }
+
+            .add-to-cart-button:active {
+                background-color: #1e7e34;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="book-details">
+            <div class="book-images" id="bookImages"></div>
+            <div class="book-name" th:text="${book.name}">Kitap Adı</div>
+            <div class="book-author">Yazar: <span th:text="${book.author}">Yazar Adı</span></div>
+            <div class="book-isbn">ISBN: <span th:text="${book.isbn}">ISBN Numarası</span></div>
+            <div class="book-price">Fiyat: <span th:text="${book.price}"></span> TL</div>
+            <div class="book-pages">Sayfa Sayısı: <span th:text="${book.pageNumber}"></span></div>
+            <div class="book-publication-date">Yayın Tarihi: <span th:text="${book.publicationDate}"></span></div>
+            <div class="book-publisher">Yayınevi: <span th:text="${book.publisher}"></span></div>
+            <div class="book-stock">Stok Adedi: <span th:text="${book.stockNumber}"></span></div>
+            <div class="book-id">Kitap ID: <span th:text="${book.id}"></span></div>
+            <div class="favorite-buttons">
+                <button class="favorite-button" onclick="addToFavorites()">Favoriye Ekle</button>
+                <button class="unfavorite-button" onclick="removeFromFavorites()">Favoriden Kaldır</button>
+                <button class="add-to-cart-button" onclick="addToBasket()">Sepete Ekle</button>
+            </div>
+            <div class="favorite-count">
+                Favoriye Eklenme Sayısı: <span id="favoriteCount">0</span>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h2>Yorumlar</h2>
+            <div id="comments"></div>
+        </div>
+
+        <div class="comment-form">
+            <h2>Yorum Yap</h2>
+            <textarea id="commentText" placeholder="Yorumunuzu buraya yazın..."></textarea>
+            <button onclick="postComment()">Yorum Yap</button>
+        </div>
+
+        <script th:inline="javascript">
+            /* Thymeleaf inline JavaScript */
+            document.addEventListener("DOMContentLoaded", function () {
+                const bookIdElement = document.querySelector('.book-id span');
+                const bookId = parseInt(bookIdElement.textContent.trim(), 10);
+                fetchComments(bookId);
+                fetchFavoriteCount(bookId);
+
+                // Fetch book images dynamically
+                fetch('/book/get-image?id=' + bookId)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.images && data.images.length > 0) {
+                                const bookImagesContainer = document.getElementById('bookImages');
+                                data.images.forEach(imageData => {
+                                    const imageUrl = `data:image/jpeg;base64,${imageData}`;
+                                    const bookImage = document.createElement('div');
+                                    bookImage.className = 'book-image';
+                                    bookImage.style.backgroundImage = `url(${imageUrl})`;
+                                    bookImagesContainer.appendChild(bookImage);
+                                });
+                            } else {
+                                // Show a default image if no images are found
+                                const bookImagesContainer = document.getElementById('bookImages');
+                                const defaultImage = document.createElement('div');
+                                defaultImage.className = 'book-image';
+                                defaultImage.style.backgroundImage = 'url(/default-image.png)';
+                                bookImagesContainer.appendChild(defaultImage);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching book images:', error);
+                        });
+            });
+
+            function fetchComments(bookId) {
+                const commentsContainer = document.getElementById('comments');
+                commentsContainer.innerHTML = ''; // Clear existing comments
+
+                fetch(`/comment/getv1?id=${bookId}`)
+                        .then(response => response.json())
+                        .then(comments => {
+                            comments.forEach(comment => {
+                                const commentDiv = document.createElement('div');
+                                commentDiv.className = 'comment';
+                                const authorDiv = document.createElement('div');
+                                authorDiv.className = 'author';
+                                authorDiv.textContent = `${comment.customer.name} ${comment.customer.lastname}`;
+                                const dateDiv = document.createElement('div');
+                                dateDiv.className = 'date';
+                                dateDiv.textContent = comment.dateTime;
+                                const contextDiv = document.createElement('div');
+                                contextDiv.className = 'context';
+                                contextDiv.textContent = comment.context;
+                                commentDiv.appendChild(authorDiv);
+                                commentDiv.appendChild(dateDiv);
+                                commentDiv.appendChild(contextDiv);
+                                commentsContainer.appendChild(commentDiv);
+                            });
+                        });
+            }
+
+            function postComment() {
+                const commentText = document.getElementById('commentText').value;
+                const bookIdElement = document.querySelector('.book-id span');
+                const bookId = bookIdElement.textContent;
+
+                const commentData = {
+                    bookId: bookId,
+                    text: commentText
+                };
+
+                fetch('/comment/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(commentData)
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                // Yorum başarıyla eklendi, yorumları yeniden yükle
+                                document.getElementById('commentText').value = "";
+                                fetchComments(bookId);
+                            } else {
+                                alert("Yorum eklenirken bir hata oluştu.");
+                            }
+                        });
+            }
+
+            function addToFavorites() {
+                const bookIdElement = document.querySelector('.book-id span');
+                const bookId = parseInt(bookIdElement.textContent.trim(), 10);
+
+                const favoriteData = {
+                    bookId: bookId
+                };
+
+                fetch('/fav/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(favoriteData)
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Kitap başarıyla favorilere eklendi.");
+                                fetchFavoriteCount(bookId);
+                            } else {
+                                alert("Kitap favorilere eklenirken bir hata oluştu.");
+                            }
+                        });
+            }
+
+            function removeFromFavorites() {
+                const bookIdElement = document.querySelector('.book-id span');
+                const bookId = bookIdElement.textContent;
+
+                fetch('/fav/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({bookId: bookId})
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Kitap favorilerden başarıyla kaldırıldı.");
+                                fetchFavoriteCount(bookId);
+                            } else {
+                                alert("Kitap favorilerden kaldırılırken bir hata oluştu.");
+                            }
+                        });
+            }
+
+            function fetchFavoriteCount(bookId) {
+                fetch(`/fav/get-all-book?id=${bookId}`)
+                        .then(response => response.json())
+                        .then(count => {
+                            document.getElementById('favoriteCount').textContent = count;
+                        });
+            }
+
+            function addToBasket() {
+                const bookIdElement = document.querySelector('.book-id span');
+                const id = bookIdElement.textContent;
+
+                const addToBasketRequest = {
+                    id: parseInt(id)
+                };
+
+                fetch('/basket/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(addToBasketRequest)
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Kitap başarıyla sepete eklendi.");
+                                // Burada sepete eklendikten sonra yapılacak işlemler eklenebilir
+                            } else {
+                                alert("Kitap sepete eklenirken bir hata oluştu.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error adding book to basket', error);
+                        });
+            }
+
+        </script>
+    </body>
+</html>

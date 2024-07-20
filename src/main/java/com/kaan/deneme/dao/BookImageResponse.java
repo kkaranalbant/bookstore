@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.dao;
 
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -11,8 +12,10 @@ import lombok.Data;
  * @author kaan
  */
 @Data
-public class ImageUpdatingDao {
+public class BookImageResponse {
     
-    private String url ;
+    private List<String> path ; 
+    
+    private List <byte []> images ; 
     
 }

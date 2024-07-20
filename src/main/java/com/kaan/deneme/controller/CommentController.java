@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -38,10 +40,11 @@ public class CommentController {
     }
 
     @PostMapping("/add")
-    public void addComment(HttpServletRequest request , @RequestBody CommentAddingDao commentAddingDao) {
+    public CommentAddingDao addComment(HttpServletRequest request , @RequestBody CommentAddingDao commentAddingDao) {
         String jwt = jwtService.getJwt(request) ;
         Long customerId = jwtService.getId(jwt);
         commentService.addComment(customerId, commentAddingDao);
+        return commentAddingDao ;
     }
     
     @PostMapping("/update")
@@ -59,8 +62,8 @@ public class CommentController {
     }
     
     @GetMapping ("/getv1")
-    public List <Comment> getCommentsByBookId (@RequestBody ElementIdDao elementIdDao) {
-        return commentService.getCommentsByBookId(elementIdDao);
+    public List <Comment> getCommentsByBookId (@RequestParam Long id) {
+        return commentService.getCommentsByBookId(new ElementIdDao (id));
     }
     
     @GetMapping ("/getv2")
@@ -70,11 +73,15 @@ public class CommentController {
     
     
     @GetMapping ("/getv3")
-    public List <Comment> getSelfCommentsByCustomerId (HttpServletRequest request) {
+    public ModelAndView getSelfCommentsByCustomerId (HttpServletRequest request) {
         String jwt = jwtService.getJwt(request);
         Long customerId = jwtService.getId(jwt);
         ElementIdDao elementIdDao = new ElementIdDao (customerId) ;
-        return commentService.getCommentsByCustomerId(elementIdDao);
+        ModelAndView mv = new ModelAndView () ;
+        List <Comment> comments = commentService.getCommentsByCustomerId(elementIdDao);
+        mv.addObject("comments", comments);
+        mv.setViewName("customer-comment");
+        return mv ;
     }
     
 }

@@ -4,14 +4,16 @@
  */
 package com.kaan.deneme.service;
 
-import com.kaan.deneme.dao.LoginCredentialsUpdatingDao;
 import com.kaan.deneme.exception.InvalidAddingProcessException;
-import com.kaan.deneme.exception.InvalidIdException;
+import com.kaan.deneme.exception.InvalidUpdatingProcessException;
 import com.kaan.deneme.model.Person;
+import com.kaan.deneme.model.Role;
 import com.kaan.deneme.model.UserCredentials;
+import com.kaan.deneme.repository.AdminRepo;
 import com.kaan.deneme.repository.UserCredentialsRepo;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +24,10 @@ import org.springframework.stereotype.Service;
 public class LoginCredentialsService {
     
     private UserCredentialsRepo userCredentialsRepo ;
+    
+    private BCryptPasswordEncoder bCryptPasswordEncoder ;
+    
+    private AdminRepo adminRepo ;
     
     private static byte minPassLength ;
     
@@ -34,24 +40,24 @@ public class LoginCredentialsService {
     }
     
     @Autowired
-    public LoginCredentialsService (UserCredentialsRepo userCredentialsRepo) {
+    public LoginCredentialsService (UserCredentialsRepo userCredentialsRepo , BCryptPasswordEncoder bCryptPasswordEncoder , AdminRepo adminRepo) {
         this.userCredentialsRepo = userCredentialsRepo ;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder ;
+        this.adminRepo = adminRepo ;
     }
     
-    public void add (LoginCredentialsUpdatingDao loginCredentialsUpdatingDao) throws InvalidAddingProcessException {
-        if (loginCredentialsUpdatingDao.getUsername() == null || loginCredentialsUpdatingDao.getPassword() == null) {
+    public void add (String username , String password , Person person , Role role) throws InvalidAddingProcessException {
+        if (username == null || password == null) {
             throw new InvalidAddingProcessException () ;
         }
-        String username = loginCredentialsUpdatingDao.getUsername() ;
         Optional <UserCredentials> userCredentialsOptional = userCredentialsRepo.findByUsername(username);
         if (userCredentialsOptional.isEmpty()) {
-            String password = loginCredentialsUpdatingDao.getPassword() ;
             if (isValidPass(password)) {
                 UserCredentials userCredentials = new UserCredentials () ;
-                userCredentials.setPerson(loginCredentialsUpdatingDao.getPerson());
+                userCredentials.setPerson(person);
                 userCredentials.setUsername(username);
-                userCredentials.setPassword(password);
-                userCredentials.setRole(loginCredentialsUpdatingDao.getRole());
+                userCredentials.setPassword(bCryptPasswordEncoder.encode(password));
+                userCredentials.setRole(role);
                 userCredentialsRepo.save(userCredentials);
             }
         }
@@ -59,6 +65,22 @@ public class LoginCredentialsService {
             throw new InvalidAddingProcessException () ;
         }
         
+    }
+    
+    
+    public void update (String oldUsername ,String username , String password ) throws InvalidUpdatingProcessException {
+        if (username == null || password == null || !isValidPass(password)) {
+            throw new InvalidUpdatingProcessException () ;
+        }
+        Optional <UserCredentials> newUsernameCredententialOptional = userCredentialsRepo.findByUsername(username) ;
+        if (newUsernameCredententialOptional.isPresent()) {
+            throw new InvalidUpdatingProcessException () ;
+        }
+        Optional <UserCredentials> userCredentialsOptional = userCredentialsRepo.findByUsername(oldUsername);
+        UserCredentials oldUserCredentials = userCredentialsOptional.get() ;
+        oldUserCredentials.setUsername(username);
+        oldUserCredentials.setPassword(bCryptPasswordEncoder.encode(password));
+        userCredentialsRepo.save(oldUserCredentials);
     }
     
     public void remove (Person person) {

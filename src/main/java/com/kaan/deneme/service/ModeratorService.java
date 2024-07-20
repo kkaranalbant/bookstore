@@ -5,7 +5,7 @@
 package com.kaan.deneme.service;
 
 import com.kaan.deneme.dao.ElementIdDao;
-import com.kaan.deneme.dao.LoginCredentialsUpdatingDao;
+import com.kaan.deneme.dao.ModeratorAddingRequest;
 import com.kaan.deneme.dao.ModeratorUpdatingDao;
 import com.kaan.deneme.exception.InvalidAddingProcessException;
 import com.kaan.deneme.exception.InvalidIdException;
@@ -13,6 +13,7 @@ import com.kaan.deneme.exception.InvalidUpdatingProcessException;
 import com.kaan.deneme.model.Gender;
 import com.kaan.deneme.model.Moderator;
 import com.kaan.deneme.model.Role;
+import com.kaan.deneme.model.UserCredentials;
 import com.kaan.deneme.repository.ModeratorRepo;
 import java.util.List;
 import java.util.Optional;
@@ -27,57 +28,39 @@ import org.springframework.stereotype.Service;
 public class ModeratorService {
 
     private ModeratorRepo moderatorRepo;
-    
-    private LoginCredentialsService loginCredentialsService ;
+
+    private LoginCredentialsService loginCredentialsService;
 
     @Autowired
-    public ModeratorService(ModeratorRepo moderatorRepo , LoginCredentialsService loginCredentialsService) {
+    public ModeratorService(ModeratorRepo moderatorRepo, LoginCredentialsService loginCredentialsService) {
         this.moderatorRepo = moderatorRepo;
-        this.loginCredentialsService = loginCredentialsService ;
+        this.loginCredentialsService = loginCredentialsService;
     }
 
-    public void add(ElementIdDao elementIdDao, ModeratorUpdatingDao moderatorUpdatingDao, LoginCredentialsUpdatingDao loginCredentialsUpdatingDao) throws InvalidIdException, InvalidAddingProcessException {
-        String name = moderatorUpdatingDao.getName();
-        String lastname = moderatorUpdatingDao.getLastname();
-        Gender gender = moderatorUpdatingDao.getGender();
+    public void add(ModeratorAddingRequest moderatorAddingRequest) throws InvalidIdException, InvalidAddingProcessException {
+        String name = moderatorAddingRequest.getName();
+        String lastname = moderatorAddingRequest.getLastname();
+        Gender gender = moderatorAddingRequest.getGender();
         if (name == null || lastname == null) {
             throw new InvalidAddingProcessException();
         }
-        if (elementIdDao.id() == null) {
-            Moderator mod = new Moderator();
-            mod.setName(name);
-            mod.setLastname(lastname);
-            mod.setGender(gender);
-            moderatorRepo.save(mod);
-            Moderator moderator = moderatorRepo.findByNameAndLastname(name, lastname).get();
-            loginCredentialsUpdatingDao.setPerson(moderator);
-            loginCredentialsUpdatingDao.setRole(Role.MOD);
-            loginCredentialsService.add(loginCredentialsUpdatingDao);
-        } else {
-            Optional<Moderator> modOptional = moderatorRepo.findById(elementIdDao.id());
-            if (modOptional.isPresent()) {
-                throw new InvalidIdException();
-            }
-            Moderator mod = new Moderator();
-            mod.setName(name);
-            mod.setLastname(lastname);
-            mod.setGender(gender);
-            moderatorRepo.save(mod);
-            Moderator moderator = moderatorRepo.findByNameAndLastname(name, lastname).get();
-            loginCredentialsUpdatingDao.setPerson(moderator);
-            loginCredentialsUpdatingDao.setRole(Role.MOD);
-            loginCredentialsService.add(loginCredentialsUpdatingDao);
-        }
+        Moderator mod = new Moderator();
+        mod.setName(name);
+        mod.setLastname(lastname);
+        mod.setGender(gender);
+        moderatorRepo.save(mod);
+        Moderator moderator = moderatorRepo.findByNameAndLastname(name, lastname).get();
+        loginCredentialsService.add(moderatorAddingRequest.getUsername(), moderatorAddingRequest.getPassword(), moderator, Role.MOD);
     }
 
-    public void update(ElementIdDao elementIdDao, ModeratorUpdatingDao moderatorUpdatingDao , LoginCredentialsUpdatingDao loginCredentialsUpdatingDao) throws InvalidUpdatingProcessException, InvalidIdException {
+    public void update(ModeratorUpdatingDao moderatorUpdatingDao) throws InvalidUpdatingProcessException, InvalidIdException {
         String name = moderatorUpdatingDao.getName();
         String lastname = moderatorUpdatingDao.getLastname();
         Gender gender = moderatorUpdatingDao.getGender();
         if (name == null || lastname == null) {
             throw new InvalidUpdatingProcessException();
         }
-        Optional<Moderator> modOptional = moderatorRepo.findById(elementIdDao.id());
+        Optional<Moderator> modOptional = moderatorRepo.findById(moderatorUpdatingDao.getId());
         if (modOptional.isEmpty()) {
             throw new InvalidIdException();
         }
@@ -85,13 +68,12 @@ public class ModeratorService {
         if (mod.getName().equals(moderatorUpdatingDao.getName()) && mod.getLastname().equals(moderatorUpdatingDao.getLastname()) && mod.getGender().equals(moderatorUpdatingDao.getGender())) {
             throw new InvalidUpdatingProcessException();
         }
+        UserCredentials credentials = loginCredentialsService.get(mod);
         mod.setName(name);
         mod.setLastname(lastname);
         mod.setGender(gender);
         moderatorRepo.save(mod);
-        loginCredentialsUpdatingDao.setPerson(mod);
-        loginCredentialsUpdatingDao.setRole(Role.MOD);
-        loginCredentialsService.add(loginCredentialsUpdatingDao);
+        loginCredentialsService.update(credentials.getUsername(), moderatorUpdatingDao.getUsername(), moderatorUpdatingDao.getPassword());
     }
 
     public List<Moderator> getAllMods() {
@@ -111,7 +93,7 @@ public class ModeratorService {
         if (modOptional.isEmpty()) {
             throw new InvalidIdException();
         }
-        Moderator mod = moderatorRepo.findById(elementIdDao.id()).get() ;
+        Moderator mod = moderatorRepo.findById(elementIdDao.id()).get();
         loginCredentialsService.remove(mod);
         moderatorRepo.deleteById(elementIdDao.id());
     }

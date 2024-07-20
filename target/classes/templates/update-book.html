@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Book Updating Form</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            .image-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 20px;
+            }
+            .image-wrapper {
+                position: relative;
+                width: 150px;
+                height: 200px;
+            }
+            .book-image {
+                width: 100%;
+                height: 100%;
+                background-size: cover;
+                background-position: center;
+                border: 1px solid #ccc;
+            }
+            .delete-button {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background-color: red;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            .add-image-button {
+                background-color: green;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                cursor: pointer;
+                margin-top: 20px;
+            }
+            .hidden-file-input {
+                display: none;
+            }
+        </style>
+        <script>
+            async function fetchBook() {
+                const id = document.getElementById('fetchBookId').value;
+                if (!id) {
+                    alert("Please enter an ID.");
+                    return;
+                }
+
+                // Fetch book information based on the ID
+                const response = await fetch(`/book/get-book-json?id=${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const book = await response.json();
+                    populateUpdateForm(book, id);
+                } else {
+                    alert("Failed to fetch book information.");
+                }
+
+                // Fetch book images based on the ID
+                const imageResponse = await fetch(`/book/get-image?id=${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (imageResponse.ok) {
+                    const bookImageResponse = await imageResponse.json();
+                    displayBookImages(bookImageResponse, id);
+                } else {
+                    alert("Failed to fetch book images.");
+                }
+            }
+
+            function populateUpdateForm(book, id) {
+                document.getElementById('oldBookId').value = id;
+                document.getElementById('name').value = book.name;
+                document.getElementById('author').value = book.author;
+                document.getElementById('isbn').value = book.isbn;
+                document.getElementById('price').value = book.price;
+                document.getElementById('pageNumber').value = book.pageNumber;
+                document.getElementById('publicationDate').value = book.publicationDate;
+                document.getElementById('publisher').value = book.publisher;
+                document.getElementById('stockNumber').value = book.stockNumber;
+
+                // Show the update form after fetching data
+                document.getElementById('updateForm').style.display = 'block';
+            }
+
+            function displayBookImages(bookImageResponse, bookId) {
+                const imageContainer = document.getElementById('imageContainer');
+                imageContainer.innerHTML = ''; // Clear existing images
+
+                bookImageResponse.images.forEach((image, index) => {
+                    const imageWrapper = document.createElement('div');
+                    imageWrapper.className = 'image-wrapper';
+
+                    const bookImage = document.createElement('div');
+                    bookImage.className = 'book-image';
+                    bookImage.style.backgroundImage = `url(data:image/jpeg;base64,${image})`;
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-button';
+                    deleteButton.textContent = 'Delete Image';
+                    deleteButton.onclick = () => deleteImage(bookId, bookImageResponse.path[index]);
+
+                    imageWrapper.appendChild(bookImage);
+                    imageWrapper.appendChild(deleteButton);
+                    imageContainer.appendChild(imageWrapper);
+                });
+
+                // Add "Add Image" button
+                const addImageButton = document.createElement('button');
+                addImageButton.className = 'add-image-button';
+                addImageButton.textContent = 'Add Image';
+                addImageButton.onclick = () => document.getElementById('fileInput').click();
+
+                imageContainer.appendChild(addImageButton);
+            }
+
+            async function deleteImage(bookId, imagePath) {
+                const bookDeletingRequest = {
+                    bookId: bookId,
+                    path: imagePath
+                };
+
+                const response = await fetch('/book/delete-image', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookDeletingRequest)
+                });
+
+                if (response.ok) {
+                    alert("Image deleted successfully.");
+                    fetchBook(); // Refresh the book information and images
+                } else {
+                    alert("Failed to delete image.");
+                }
+            }
+
+            async function addImage(bookId, file) {
+                const reader = new FileReader();
+                reader.onload = async function (event) {
+                    const imageBytes = Array.from(new Uint8Array(event.target.result));
+                    const bookImageAddingRequest = {
+                        bookId: bookId,
+                        imageBytes: [imageBytes]
+                    };
+
+                    const response = await fetch('/book/add-image', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(bookImageAddingRequest)
+                    });
+
+                    if (response.ok) {
+                        alert("Image added successfully.");
+                        fetchBook(); // Refresh the book information and images
+                    } else {
+                        alert("Failed to add image.");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            async function saveBook() {
+                const book = {
+                    oldId: document.getElementById('oldBookId').value,
+                    id: document.getElementById('newBookId').value,
+                    name: document.getElementById('name').value,
+                    author: document.getElementById('author').value,
+                    isbn: document.getElementById('isbn').value,
+                    price: parseFloat(document.getElementById('price').value),
+                    pageNumber: parseInt(document.getElementById('pageNumber').value),
+                    publicationDate: document.getElementById('publicationDate').value,
+                    publisher: document.getElementById('publisher').value,
+                    stockNumber: parseInt(document.getElementById('stockNumber').value)
+                };
+
+                // Save book information
+                const response = await fetch('/book/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(book)
+                });
+
+                if (response.ok) {
+                    alert("Book information saved successfully.");
+                    // Clear form after successful update
+                    document.getElementById('updateForm').reset();
+                    document.getElementById('updateForm').style.display = 'none';
+                } else {
+                    alert("Failed to save book information.");
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const fileInput = document.getElementById('fileInput');
+                fileInput.addEventListener('change', () => {
+                    const bookId = document.getElementById('oldBookId').value;
+                    const file = fileInput.files[0];
+                    if (file && bookId) {
+                        addImage(bookId, file);
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <h1>Update Book Information</h1>
+
+        <!-- Fetch Form -->
+        <form onsubmit="event.preventDefault(); fetchBook();">
+            <label for="fetchBookId">Book ID:</label>
+            <input type="number" id="fetchBookId" name="fetchBookId" required>
+            <button type="submit">Fetch Book</button>
+        </form>
+
+        <!-- Update Form -->
+        <form id="updateForm" style="display: none;" onsubmit="event.preventDefault(); saveBook();">
+            <label for="oldBookId">Old Book ID:</label>
+            <input type="number" id="oldBookId" name="oldBookId" readonly><br>
+
+            <label for="newBookId">New Book ID:</label>
+            <input type="number" id="newBookId" name="newBookId" required><br>
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br>
+
+            <label for="author">Author:</label>
+            <input type="text" id="author" name="author" required><br>
+
+            <label for="isbn">ISBN:</label>
+            <input type="text" id="isbn" name="isbn" required><br>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" step="0.01" required><br>
+
+            <label for="pageNumber">Page Number:</label>
+            <input type="number" id="pageNumber" name="pageNumber" required><br>
+
+            <label for="publicationDate">Publication Date:</label>
+            <input type="date" id="publicationDate" name="publicationDate" required><br>
+
+            <label for="publisher">Publisher:</label>
+            <input type="text" id="publisher" name="publisher" required><br>
+
+            <label for="stockNumber">Stock Number:</label>
+            <input type="number" id="stockNumber" name="stockNumber" required><br>
+
+            <button type="submit">Save</button>
+        </form>
+
+        <!-- Image Container -->
+        <div id="imageContainer" class="image-container"></div>
+
+        <!-- Hidden File Input -->
+        <input type="file" id="fileInput" class="hidden-file-input">
+    </body>
+</html>

@@ -17,8 +17,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookImageRepo extends JpaRepository <BookImage , Long>{
     
-    public Optional<BookImage> findByBookIdAndUrl (Long bookId , String url) ;
+    public Optional<BookImage> findByBookIdAndPath (Long bookId , String path) ;
     
     public List <BookImage> findAllByBookId (Long bookId) ;
+    
+    public void deleteByBookId (Long bookId) ;
     
 }

@@ -15,6 +15,8 @@ import lombok.Data;
 @Data
 public class CustomerUpdatingDao {
     
+        
+    private Long id ;
     
     private String name ;
     
@@ -27,5 +29,9 @@ public class CustomerUpdatingDao {
     private LocalDate birthDate ;
     
     private String address ;
+    
+    private String username ; 
+    
+    private String password ;
     
 }

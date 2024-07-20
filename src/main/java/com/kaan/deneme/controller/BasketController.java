@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.controller;
 
+import com.kaan.deneme.dao.AddToBasketRequest;
 import com.kaan.deneme.dao.ElementIdDao;
 import com.kaan.deneme.model.Book;
 import com.kaan.deneme.service.BasketService;
@@ -14,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -35,11 +38,14 @@ public class BasketController {
     }
     
     @GetMapping("/get") // musteri
-    public List<Book> getBasketByCustomerId(HttpServletRequest request) {
+    public ModelAndView getBasketByCustomerId(HttpServletRequest request) {
         String jwt = jwtService.getJwt(request);
         Long id = jwtService.getId(jwt);
-        return basketService.getBasketByCustomerId(id);
-        
+        List <Book> basket = basketService.getBasketByCustomerId(id);     
+        ModelAndView mv = new ModelAndView () ;
+        mv.addObject("basket", basket);
+        mv.setViewName("customer-basket");
+        return mv ;
     }
     
     @PostMapping("/truncate") //musteri
@@ -50,14 +56,14 @@ public class BasketController {
     }
     
     @PostMapping("/add") // musteri
-    public void addToBasket(HttpServletRequest request, ElementIdDao bookIdDao) {
+    public void addToBasket(HttpServletRequest request, @RequestBody AddToBasketRequest addToBasketRequest) {
         String jwt = jwtService.getJwt(request);
-        Long id = jwtService.getId(jwt);
-        basketService.addToBasketById(id, bookIdDao);
+        Long customerId = jwtService.getId(jwt);
+        basketService.addToBasketById(customerId, new ElementIdDao (addToBasketRequest.getId()));
     }
     
     @DeleteMapping("/remove") //musteri
-    public void removeFromBasketByBasketId(HttpServletRequest request, ElementIdDao bookIdDao) {
+    public void removeFromBasketByBasketId(HttpServletRequest request, @RequestBody ElementIdDao bookIdDao) {
         String jwt = jwtService.getJwt(request);
         Long id = jwtService.getId(jwt);
         basketService.removeFromBasketById(id, bookIdDao);

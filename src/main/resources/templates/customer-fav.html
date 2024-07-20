@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <link rel="stylesheet" href="style.css" type="text/css"/>
+        <title>Müşteri Favori Kitapları</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+            }
+
+            .favorites-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+            }
+
+            .favorite-item {
+                width: 150px;
+                text-align: center;
+                border: 1px solid #ccc;
+                padding: 10px;
+                border-radius: 10px;
+            }
+
+            .favorite-item img {
+                width: 100px;
+                height: 150px;
+                object-fit: cover;
+                cursor: pointer;
+                margin-bottom: 10px;
+            }
+
+            .favorite-item .book-name {
+                font-size: 16px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Müşteri Favori Kitapları</h1>
+        <div class="favorites-container">
+            <!-- Thymeleaf iteration over the list of favorite books -->
+            <div class="favorite-item" th:each="fav : ${favs}">
+                <img th:src="@{/book/get-image(id=${fav.book.id})}" th:alt="${fav.book.name}" th:onclick="|window.location.href='/book/get?id=${fav.book.id}'|"/>
+                <div class="book-name" th:text="${fav.book.name}"></div>
+            </div>
+        </div>
+    </body>
+</html>

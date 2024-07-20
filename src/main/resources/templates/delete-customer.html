@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Delete Customer</title>
+        <script>
+            async function deleteCustomer() {
+                const id = document.getElementById('customerId').value;
+                if (!id) {
+                    alert("Please enter an ID.");
+                    return;
+                }
+
+                const elementIdDao = {id: parseInt(id)};
+
+                try {
+                    const response = await fetch('/customer/deletev1', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(elementIdDao)
+                    });
+
+                    if (response.ok) {
+                        alert("Customer deleted successfully.");
+                    } else {
+                        alert("Failed to delete customer.");
+                    }
+                } catch (error) {
+                    alert("An error occurred while deleting customer.");
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Delete Customer</h1>
+        <form onsubmit="event.preventDefault(); deleteCustomer();">
+            <label for="customerId">Customer ID:</label>
+            <input type="number" id="customerId" name="customerId" required>
+            <button type="submit">Delete Customer</button>
+        </form>
+    </body>
+</html>

@@ -12,9 +12,7 @@ import lombok.Data;
  */
 @Data
 public class FavouriteUpdatingDao {
-    
-    private Long customerId ;
-    
+        
     private Long bookId ;
     
 }

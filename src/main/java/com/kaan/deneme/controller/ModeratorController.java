@@ -5,7 +5,7 @@
 package com.kaan.deneme.controller;
 
 import com.kaan.deneme.dao.ElementIdDao;
-import com.kaan.deneme.dao.LoginCredentialsUpdatingDao;
+import com.kaan.deneme.dao.ModeratorAddingRequest;
 import com.kaan.deneme.dao.ModeratorUpdatingDao;
 import com.kaan.deneme.model.Moderator;
 import com.kaan.deneme.service.ModeratorService;
@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -40,22 +42,51 @@ public class ModeratorController {
     }
     
     @GetMapping ("/get")
-    public Moderator getModById (@RequestBody ElementIdDao elementIdDao) {
-        return modService.getModById(elementIdDao);
+    public Moderator getModById (@RequestParam Long id) {
+        return modService.getModById(new ElementIdDao (id));
+    }
+    
+    @GetMapping ("/add-panel")
+    public ModelAndView getAddingPanel () {
+        ModelAndView mv = new ModelAndView () ;
+        mv.setViewName("add-mod");
+        return mv ;
     }
     
     @PostMapping ("/add")
-    public void addMod (@RequestBody ElementIdDao elementIdDao , @RequestBody ModeratorUpdatingDao moderatorUpdatingDao, @RequestBody LoginCredentialsUpdatingDao loginCredentialsUpdatingDao) {
-        modService.add(elementIdDao, moderatorUpdatingDao , loginCredentialsUpdatingDao);
+    public void addMod (@RequestBody ModeratorAddingRequest moderatorAddingRequest) {
+        modService.add(moderatorAddingRequest);
+    }
+    
+    @GetMapping ("/update-panel")
+    public ModelAndView getUpdatingPanel () {
+        ModelAndView mv = new ModelAndView () ;
+        mv.setViewName("update-mod");
+        return mv ;
     }
     
     @PostMapping ("/update")
-    public void updateMod (@RequestBody ElementIdDao elementIdDao , @RequestBody ModeratorUpdatingDao moderatorUpdatingDao, @RequestBody LoginCredentialsUpdatingDao loginCredentialsUpdatingDao) {
-        modService.update(elementIdDao, moderatorUpdatingDao , loginCredentialsUpdatingDao);
+    public void updateMod (@RequestBody ModeratorUpdatingDao moderatorUpdatingDao) {
+        
+        modService.update(moderatorUpdatingDao);
+    }
+    
+    @GetMapping ("/delete-panel")
+    public ModelAndView getDeletingPanel () {
+        ModelAndView mv = new ModelAndView () ;
+        mv.setViewName("delete-mod");
+        return mv ;
     }
     
     @DeleteMapping ("/delete")
     public void deleteMod (@RequestBody ElementIdDao elementIdDao) {
         modService.deleteModById(elementIdDao);
-    }    
+    }   
+    
+    @GetMapping("/main-panel")
+    public ModelAndView getMainPanel () {
+        ModelAndView mv = new ModelAndView () ;
+        mv.setViewName("mod-main-panel");
+        return mv ;
+    }
 }

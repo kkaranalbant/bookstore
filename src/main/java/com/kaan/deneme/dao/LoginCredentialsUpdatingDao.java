@@ -4,6 +4,8 @@
  */
 package com.kaan.deneme.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kaan.deneme.model.Person;
 import com.kaan.deneme.model.Role;
 import lombok.Data;
@@ -13,6 +15,7 @@ import lombok.Data;
  * @author kaan
  */
 @Data
+
 public class LoginCredentialsUpdatingDao {
     
     private Person person ;

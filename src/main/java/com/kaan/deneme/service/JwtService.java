@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Date;
@@ -17,26 +18,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
-    
-    private UserCredentialsService userCredentialsService ;
+
+    private UserCredentialsService userCredentialsService;
 
     @Value("${jwt.secret}")
     private String secretValue;
 
     @Value("${jwt.expiration}")
     private long jwtExpirationInMs;
-    
+
     @Autowired
-    public JwtService (UserCredentialsService userCredentialsService) {
-        this.userCredentialsService = userCredentialsService ;
+    public JwtService(UserCredentialsService userCredentialsService) {
+        this.userCredentialsService = userCredentialsService;
     }
 
     public String getUsername(String jwt) {
         return extractToken(jwt, Claims::getSubject);
     }
-    
-    public Long getId (String jwt) {
-    return extractToken(jwt, claims -> claims.get("Id", Long.class));
+
+    public Long getId(String jwt) {
+        return extractToken(jwt, claims -> claims.get("Id", Long.class));
     }
 
     private <T> T extractToken(String jwt, Function<Claims, T> claimsFunction) {
@@ -63,10 +64,17 @@ public class JwtService {
         claims.put("Id", id);
         return doGenerateToken(claims, username);
     }
-    
-    public String getJwt (HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        return header.substring(7);
+
+    public String getJwt(HttpServletRequest request) {
+        Cookie [] cookies = request.getCookies() ;
+        String jwt = null ;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("Authorization")) {
+                jwt = cookie.getValue() ;
+            }
+        }
+        if (jwt == null) return null ;
+        return jwt.substring(7) ;
     }
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {

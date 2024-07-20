@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Moderator Updating Panel</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f4f4f4;
+            }
+
+            .form-container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                width: 300px;
+                margin-bottom: 20px;
+            }
+
+            .form-container h2 {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+
+            .form-group button {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                background-color: blue;
+                cursor: pointer;
+                font-size: 16px;
+            }
+
+            .fetch-form {
+                margin-bottom: 20px;
+            }
+
+            .fetch-form button {
+                background-color: orange;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="form-container">
+            <h2>Moderator Updating Panel</h2>
+
+            <!-- Fetch Form -->
+            <form class="fetch-form" onsubmit="event.preventDefault(); fetchModerator();">
+                <div class="form-group">
+                    <label for="fetchModeratorId">Moderator ID</label>
+                    <input type="number" id="fetchModeratorId" name="fetchModeratorId" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Fetch Moderator</button>
+                </div>
+            </form>
+
+            <!-- Update Form -->
+            <form id="updateForm" style="display: none;" onsubmit="event.preventDefault(); updateModerator();">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastname">Last Name</label>
+                    <input type="text" id="lastname" name="lastname" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender" required>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+        </div>
+
+        <script>
+            async function fetchModerator() {
+                const moderatorId = document.getElementById('fetchModeratorId').value;
+                if (!moderatorId) {
+                    alert("Please enter Moderator ID.");
+                    return;
+                }
+
+                // Fetch moderator information based on the ID
+                try {
+                    const response = await fetch(`/mod/get?id=${moderatorId}`);
+                    if (response.ok) {
+                        const moderator = await response.json();
+                        populateUpdateForm(moderator);
+                    } else {
+                        alert("Failed to fetch moderator information.");
+                    }
+                } catch (error) {
+                    console.error('Error fetching moderator:', error);
+                    alert('Error fetching moderator information.');
+                }
+            }
+
+            function populateUpdateForm(moderator) {
+                document.getElementById('name').value = moderator.name;
+                document.getElementById('lastname').value = moderator.lastname;
+                document.getElementById('gender').value = moderator.gender;
+                document.getElementById('username').value = moderator.username;
+                document.getElementById('password').value = moderator.password;
+
+                // Show the update form after fetching data
+                document.getElementById('updateForm').style.display = 'block';
+            }
+
+            async function updateModerator() {
+                const moderatorId = document.getElementById('fetchModeratorId').value; // Get ID from fetch form
+                const moderator = {
+                    id: moderatorId,
+                    name: document.getElementById('name').value,
+                    lastname: document.getElementById('lastname').value,
+                    gender: document.getElementById('gender').value,
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                };
+
+                // Update moderator information
+                try {
+                    const response = await fetch('/mod/update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(moderator)
+                    });
+
+                    if (response.ok) {
+                        alert("Moderator information updated successfully.");
+                        // Clear form after successful update
+                        document.getElementById('updateForm').reset();
+                        document.getElementById('updateForm').style.display = 'none';
+                    } else {
+                        alert("Failed to update moderator information.");
+                    }
+                } catch (error) {
+                    console.error('Error updating moderator:', error);
+                    alert('Error updating moderator information.');
+                }
+            }
+        </script>
+    </body>
+</html>

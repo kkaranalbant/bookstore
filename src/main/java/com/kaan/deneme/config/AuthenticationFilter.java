@@ -4,7 +4,6 @@
  */
 package com.kaan.deneme.config;
 
-
 import com.kaan.deneme.service.JwtService;
 import com.kaan.deneme.service.UserCredentialsService;
 import jakarta.servlet.FilterChain;
@@ -39,8 +38,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String jwt = header.substring(7);
+        String jwt = jwtService.getJwt(request);
         String username = jwtService.getUsername(jwt);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userCredentialsService.loadUserByUsername(username);
@@ -53,4 +51,3 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-

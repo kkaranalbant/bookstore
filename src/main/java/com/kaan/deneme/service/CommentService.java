@@ -94,6 +94,19 @@ public class CommentService {
         }
         throw new InvalidIdException () ;
     }
+    
+    public void deleteCommentsByBookId (Long bookId) {
+        commentRepo.deleteByBookId(bookId);
+    }
+    
+    
+    public void deleteCommentsByCustomerId (Long customerId) {
+        commentRepo.deleteByCustomerId(customerId);
+    }
+    
+    void addComment (List<Comment> comments) {
+        commentRepo.saveAll(comments);
+    }
 
     private boolean isCompatibleCustomerAndComment(Long customerId, Long commentId) {
         List<Comment> comments = commentRepo.findAllByCustomerId(customerId);

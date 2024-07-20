@@ -14,8 +14,11 @@ import lombok.Data;
 @Data
 public class ModeratorUpdatingDao {
    
+    private Long id ;
     private String name ;
     private String lastname ;
     private Gender gender ; 
+    private String username ;
+    private String password ;
     
 }
