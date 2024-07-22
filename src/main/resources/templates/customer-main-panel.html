@@ -9,6 +9,9 @@
                 font-family: Arial, sans-serif;
                 margin: 0;
                 padding: 0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
             }
 
             header {
@@ -25,11 +28,38 @@
                 cursor: pointer;
             }
 
+            #main-container {
+                display: flex;
+                flex: 1;
+            }
+
+            #filter-form {
+                width: 25%;
+                padding: 20px;
+                border-right: 1px solid #ccc;
+                position: sticky;
+                top: 0;
+                background-color: #fff;
+            }
+
+            #filter-form label {
+                display: block;
+                margin-top: 10px;
+            }
+
+            #filter-form input,
+            #filter-form select {
+                width: 100%;
+                padding: 8px;
+                margin-top: 5px;
+            }
+
             #book-container {
                 display: flex;
                 flex-wrap: wrap;
                 justify-content: center;
                 padding: 20px;
+                width: 75%;
             }
 
             .book-item {
@@ -50,7 +80,6 @@
                 margin-top: 10px;
                 font-size: 14px;
             }
-
         </style>
     </head>
     <body>
@@ -63,11 +92,41 @@
                 <button onclick="viewBasket()">Sepetim</button>
                 <button onclick="addBalance()">Bakiye Yukle</button>
                 <button onclick="viewComments()">Yorumlarim</button>
-                <button onclick= "logout()"> Cikis Yap </button>
-
+                <button onclick="logout()">Cikis Yap</button>
             </nav>
         </header>
-        <main>
+        <main id="main-container">
+            <form id="filter-form">
+                <h2>Filtrele</h2>
+                <label for="author">Yazar:</label>
+                <input type="text" id="author" name="author">
+
+                <label for="name">Kitap Adı:</label>
+                <input type="text" id="name" name="name">
+
+                <label for="minPageNumber">Min Sayfa Sayısı:</label>
+                <input type="number" id="minPageNumber" name="minPageNumber">
+
+                <label for="maxPageNumber">Max Sayfa Sayısı:</label>
+                <input type="number" id="maxPageNumber" name="maxPageNumber">
+
+                <label for="minPrice">Min Fiyat:</label>
+                <input type="number" id="minPrice" name="minPrice" step="0.01">
+
+                <label for="maxPrice">Max Fiyat:</label>
+                <input type="number" id="maxPrice" name="maxPrice" step="0.01">
+
+                <label for="minPublicationDate">Min Yayın Tarihi:</label>
+                <input type="date" id="minPublicationDate" name="minPublicationDate">
+
+                <label for="maxPublicationDate">Max Yayın Tarihi:</label>
+                <input type="date" id="maxPublicationDate" name="maxPublicationDate">
+
+                <label for="publisher">Yayıncı:</label>
+                <input type="text" id="publisher" name="publisher">
+
+                <button type="button" onclick="applyFilters()">Filtrele</button>
+            </form>
             <div id="book-container">
                 <!-- Kitap resimleri ve isimleri buraya yüklenecek -->
             </div>
@@ -110,6 +169,63 @@
                         });
             });
 
+            function applyFilters() {
+                const form = document.getElementById('filter-form');
+                const formData = new FormData(form);
+                const data = {};
+
+                formData.forEach((value, key) => {
+                    data[key] = value || null; // Set to null if the field is empty
+                });
+
+                fetch('/book/filter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                        .then(response => response.json())
+                        .then(books => {
+                            const bookContainer = document.getElementById('book-container');
+                            bookContainer.innerHTML = ''; // Clear the book container
+                            displayBooks(books);
+                        });
+            }
+
+            function displayBooks(books) {
+                const bookContainer = document.getElementById('book-container');
+                books.forEach(book => {
+                    const bookItem = document.createElement('div');
+                    bookItem.className = 'book-item';
+
+                    const bookImage = document.createElement('div');
+                    bookImage.className = 'book-image';
+                    bookImage.setAttribute('data-book-id', book.id);
+                    bookImage.addEventListener('click', () => viewBookDetails(book.id));
+
+                    bookItem.appendChild(bookImage);
+
+                    const bookTitle = document.createElement('div');
+                    bookTitle.className = 'book-title';
+                    bookTitle.textContent = book.name;
+                    bookItem.appendChild(bookTitle);
+
+                    bookContainer.appendChild(bookItem);
+
+                    fetch(`/book/get-image?id=${book.id}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.images && data.images.length > 0) {
+                                    const imageUrl = `data:image/jpeg;base64,${data.images[0]}`;
+                                    bookImage.style.backgroundImage = `url(${imageUrl})`;
+                                } else {
+                                    bookImage.style.backgroundImage = 'url(/default-image.png)'; // Default image if no image is found
+                                }
+                            });
+                });
+            }
+
             function viewFavs() {
                 window.location.href = "/fav/get-all-customer";
             }
@@ -133,6 +249,7 @@
             function viewCustomerInfo() {
                 window.location.href = "/customer/getv2-panel";
             }
+
             function viewComments() {
                 window.location.href = "/comment/getv3";
             }
@@ -140,7 +257,6 @@
             function logout() {
                 window.location.href = "/logout";
             }
-
         </script>
     </body>
 </html>

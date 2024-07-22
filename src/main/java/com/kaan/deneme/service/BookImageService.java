@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookImageService {
 
+    private static Logger logger;
+
     private BookImageRepo bookImageRepo;
     private BookService bookService;
 
@@ -38,6 +42,7 @@ public class BookImageService {
     static {
         imageDirectory = "/home/kaan/Desktop/app-images/";
         random = new Random();
+        logger = LoggerFactory.getLogger(BookImageService.class);
     }
 
     @Autowired
@@ -50,7 +55,7 @@ public class BookImageService {
     kitap servisinin oncelikle kitabi olusturmasi lazim . 
     kitap servisinden buraya erisilecek . 
      */
-    public void addBookImage(Long bookId, List<byte[]> binaryImages) throws InvalidIdException, IOException {
+    public void addBookImage(String username, Long bookId, List<byte[]> binaryImages, String ip) throws InvalidIdException, IOException {
         Optional<Book> bookOptional = bookService.getBookById(bookId);
         for (byte[] binaryImage : binaryImages) {
             String path = createRandomImagePath();
@@ -60,36 +65,41 @@ public class BookImageService {
             bookImage.setPath(path);
             bookImage.setUploadDate(LocalDateTime.now());
             bookImageRepo.save(bookImage);
+            logger.info("IP address " + ip + " | person with username " + username + " added a photo for the book with id number " + bookId + ". \n"
+                    + "Path : " + path);
         }
     }
 
-    public void removeBookImage(Long bookId, String path) throws InvalidUpdatingProcessException, IOException {
+    public void removeBookImage(String username, Long bookId, String path, String ip) throws InvalidUpdatingProcessException, IOException {
         Optional<BookImage> bookImageOptional = bookImageRepo.findByBookIdAndPath(bookId, path);
         if (bookImageOptional.isEmpty()) {
             throw new InvalidUpdatingProcessException();
         }
         deleteFileLocally(path);
         bookImageRepo.delete(bookImageOptional.get());
+        logger.info("IP address " + ip + " | person with username " + username + " removed a photo for the book with id number : " + bookId + " . \n"
+                + "Path : " + path);
     }
 
-    public void removeImagesByBookId(Long bookId) throws IOException {
+    public void removeImagesByBookId(String username, Long bookId, String ip) throws IOException {
         List<BookImage> images = bookImageRepo.findAllByBookId(bookId);
         bookImageRepo.deleteByBookId(bookId);
         for (BookImage image : images) {
             deleteFileLocally(image.getPath());
         }
+        logger.info("IP address " + ip + " | All photos of the book with id number " + bookId + " have been removed by username " + username + ".");
     }
 
-    public BookImageResponse getBookImages(Long bookId) throws InvalidIdException , IOException{
+    public BookImageResponse getBookImages(Long bookId) throws InvalidIdException, IOException {
         Optional<Book> bookOptional = bookService.getBookById(bookId);
-        List<BookImage> images = new ArrayList();
+        List<BookImage> images = new ArrayList<>();
         if (bookOptional.isEmpty()) {
             throw new InvalidIdException();
         } else {
             images = bookImageRepo.findAllByBookId(bookId);
         }
-        List<byte[]> imageByteList = new ArrayList();
-        List<String> paths = new ArrayList();
+        List<byte[]> imageByteList = new ArrayList<>();
+        List<String> paths = new ArrayList<>();
         for (BookImage image : images) {
             paths.add(image.getPath());
             imageByteList.add(createImageBytes(image.getPath()));
@@ -110,14 +120,6 @@ public class BookImageService {
         return result;
     }
 
-    private void createImageLocally(String path, byte[] imageBinary) throws IOException {
-        File file = new File(path);
-        file.createNewFile();
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(imageBinary);
-        fos.close();
-    }
-
     private String createRandomImagePath() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 5; i++) {
@@ -132,6 +134,16 @@ public class BookImageService {
     private void deleteFileLocally(String path) throws IOException {
         File file = new File(path);
         file.delete();
+        logger.info("File deleted : " + path);
+    }
+
+    private void createImageLocally(String path, byte[] imageBinary) throws IOException {
+        File file = new File(path);
+        file.createNewFile();
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(imageBinary);
+        fos.close();
+        logger.info("File created : " + path);
     }
 
 }

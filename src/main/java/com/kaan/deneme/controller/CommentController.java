@@ -9,6 +9,7 @@ import com.kaan.deneme.dao.CommentUpdatingDao;
 import com.kaan.deneme.dao.ElementIdDao;
 import com.kaan.deneme.model.Comment;
 import com.kaan.deneme.service.CommentService;
+import com.kaan.deneme.service.IpService;
 import com.kaan.deneme.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -24,7 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
- * @author kaan
+ * author kaan
  */
 @RestController
 @RequestMapping("/comment")
@@ -32,56 +33,56 @@ public class CommentController {
 
     private JwtService jwtService;
     private CommentService commentService;
+    private IpService ipService;
 
     @Autowired
-    public CommentController(JwtService jwtService, CommentService commentService) {
+    public CommentController(JwtService jwtService, CommentService commentService, IpService ipService) {
         this.jwtService = jwtService;
         this.commentService = commentService;
+        this.ipService = ipService;
     }
 
     @PostMapping("/add")
-    public CommentAddingDao addComment(HttpServletRequest request , @RequestBody CommentAddingDao commentAddingDao) {
-        String jwt = jwtService.getJwt(request) ;
+    public CommentAddingDao addComment(HttpServletRequest request, @RequestBody CommentAddingDao commentAddingDao) {
+        String jwt = jwtService.getJwt(request);
         Long customerId = jwtService.getId(jwt);
-        commentService.addComment(customerId, commentAddingDao);
-        return commentAddingDao ;
+        commentService.addComment(customerId, commentAddingDao, ipService.getIpAddress(request));
+        return commentAddingDao;
     }
-    
+
     @PostMapping("/update")
-    public void updateComment (HttpServletRequest request , @RequestBody CommentUpdatingDao commentUpdatingDao) {
+    public void updateComment(HttpServletRequest request, @RequestBody CommentUpdatingDao commentUpdatingDao) {
         String jwt = jwtService.getJwt(request);
         Long customerId = jwtService.getId(jwt);
-        commentService.updateComment(customerId, commentUpdatingDao);
+        commentService.updateComment(customerId, commentUpdatingDao, ipService.getIpAddress(request));
     }
-    
-    @DeleteMapping ("/delete") 
-    public void deleteComment (HttpServletRequest request , @RequestBody ElementIdDao elementIdDao) {
+
+    @DeleteMapping("/delete")
+    public void deleteComment(HttpServletRequest request, @RequestBody ElementIdDao elementIdDao) {
         String jwt = jwtService.getJwt(request);
         Long customerId = jwtService.getId(jwt);
-        commentService.removeComment(customerId, elementIdDao);
+        commentService.removeComment(customerId, elementIdDao, ipService.getIpAddress(request));
     }
-    
-    @GetMapping ("/getv1")
-    public List <Comment> getCommentsByBookId (@RequestParam Long id) {
-        return commentService.getCommentsByBookId(new ElementIdDao (id));
+
+    @GetMapping("/getv1")
+    public List<Comment> getCommentsByBookId(@RequestParam Long id) {
+        return commentService.getCommentsByBookId(new ElementIdDao(id));
     }
-    
-    @GetMapping ("/getv2")
-    public List <Comment> getCommentsByCustomerId (@RequestBody ElementIdDao elementIdDao) {
+
+    @GetMapping("/getv2")
+    public List<Comment> getCommentsByCustomerId(@RequestBody ElementIdDao elementIdDao) {
         return commentService.getCommentsByCustomerId(elementIdDao);
     }
-    
-    
-    @GetMapping ("/getv3")
-    public ModelAndView getSelfCommentsByCustomerId (HttpServletRequest request) {
+
+    @GetMapping("/getv3")
+    public ModelAndView getSelfCommentsByCustomerId(HttpServletRequest request) {
         String jwt = jwtService.getJwt(request);
         Long customerId = jwtService.getId(jwt);
-        ElementIdDao elementIdDao = new ElementIdDao (customerId) ;
-        ModelAndView mv = new ModelAndView () ;
-        List <Comment> comments = commentService.getCommentsByCustomerId(elementIdDao);
+        ElementIdDao elementIdDao = new ElementIdDao(customerId);
+        ModelAndView mv = new ModelAndView();
+        List<Comment> comments = commentService.getCommentsByCustomerId(elementIdDao);
         mv.addObject("comments", comments);
         mv.setViewName("customer-comment");
-        return mv ;
+        return mv;
     }
-    
 }

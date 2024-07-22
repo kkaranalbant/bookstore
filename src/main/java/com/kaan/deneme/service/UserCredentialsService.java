@@ -7,6 +7,8 @@ package com.kaan.deneme.service;
 import com.kaan.deneme.model.UserCredentials;
 import com.kaan.deneme.repository.UserCredentialsRepo;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserCredentialsService implements UserDetailsService {
-
+    
     private UserCredentialsRepo userCredentialsRepo ;
     
     

@@ -30,11 +30,14 @@ public class AuthorizationFilter {
 
     private JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler;
 
+    private CustomLogoutSuccessHandler logoutSuccessHandler;
+
     @Autowired
-    public AuthorizationFilter(@Lazy AuthenticationFilter authenticationFilter, JwtAuthenticationProvider jwtAuthenticationProvider, JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler) {
-        this.authenticationFilter = authenticationFilter;
+    public AuthorizationFilter(JwtAuthenticationProvider jwtAuthenticationProvider, AuthenticationFilter authenticationFilter, JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler, CustomLogoutSuccessHandler logoutSuccessHandler) {
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
+        this.authenticationFilter = authenticationFilter;
         this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
+        this.logoutSuccessHandler = logoutSuccessHandler;
     }
 
     @Bean
@@ -91,9 +94,9 @@ public class AuthorizationFilter {
                 .permitAll()
                 )
                 .logout((logout) -> logout.permitAll())
-                .logout((logout) -> logout.logoutSuccessUrl("/"))
-                .logout((logoutCustomizer) -> logoutCustomizer.deleteCookies("JSESSIONID", "Authorization"))
-                .logout((logoutCustomizer) -> logoutCustomizer.clearAuthentication(true));
+                .logout((logout) -> logout.logoutSuccessHandler(logoutSuccessHandler)); //                .logout((logout) -> logout.logoutSuccessUrl("/"))
+        //                .logout((logoutCustomizer) -> logoutCustomizer.deleteCookies("JSESSIONID", "Authorization"))
+        //                .logout((logoutCustomizer) -> logoutCustomizer.clearAuthentication(true)) ;
 
         return httpSecurity.build();
     }

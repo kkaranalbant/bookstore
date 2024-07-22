@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kaan.deneme.model.Customer;
+import com.kaan.deneme.service.IpService;
 import com.kaan.deneme.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +37,13 @@ public class CustomerController {
 
     private CustomerService customerService;
     private JwtService jwtService;
+    private IpService ipService;
 
     @Autowired
-    public CustomerController(CustomerService customerService, JwtService jwtService) {
+    public CustomerController(CustomerService customerService, JwtService jwtService, IpService ipService) {
         this.customerService = customerService;
         this.jwtService = jwtService;
+        this.ipService = ipService;
     }
 
     @GetMapping("/getv1-panel")
@@ -77,15 +80,17 @@ public class CustomerController {
     }
 
     @DeleteMapping("/deletev1") // admin ve mod 
-    public void deleteCustomerById(@RequestBody ElementIdDao elementIdDao) {
-        customerService.removeCustomerById(elementIdDao);
+    public void deleteCustomerById(HttpServletRequest request, @RequestBody ElementIdDao elementIdDao) {
+        String jwt = jwtService.getJwt(request);
+        String username = jwtService.getUsername(jwt);
+        customerService.removeCustomerById(username, elementIdDao, ipService.getIpAddress(request));
     }
 
     @DeleteMapping("/deletev2") // musteri
     public void deleteCustomer(HttpServletRequest httpServletRequest) {
         String jwt = jwtService.getJwt(httpServletRequest);
         Long id = jwtService.getId(jwt);
-        customerService.removeSelfCustomer(id);
+        customerService.removeSelfCustomer(id, ipService.getIpAddress(httpServletRequest));
     }
 
     @GetMapping("/addv1-panel")
@@ -96,8 +101,10 @@ public class CustomerController {
     }
 
     @PostMapping("/addv1") //admin ve mod
-    public void addCustomer(@RequestBody CustomerAddingRequest customerAddingRequest) {
-        customerService.addCustomer(customerAddingRequest);
+    public void addCustomer(HttpServletRequest request, @RequestBody CustomerAddingRequest customerAddingRequest) {
+        String jwt = jwtService.getJwt(request);
+        String username = jwtService.getUsername(jwt);
+        customerService.addCustomer(username, customerAddingRequest, ipService.getIpAddress(request));
     }
 
     @GetMapping("/register-panel")
@@ -108,8 +115,8 @@ public class CustomerController {
     }
 
     @PostMapping("/addv2") //musteri 
-    public ResponseEntity<String> addSelfCustomer(@RequestBody RegisterRequest registerRequest) {
-        customerService.addSelfCustomer(registerRequest);
+    public ResponseEntity<String> addSelfCustomer(HttpServletRequest request, @RequestBody RegisterRequest registerRequest) {
+        customerService.addSelfCustomer(registerRequest, ipService.getIpAddress(request));
         return ResponseEntity.ok().body("Successful");
     }
 
@@ -121,8 +128,10 @@ public class CustomerController {
     }
 
     @PutMapping("/updatev1") //admin ve mod
-    public void updateCustomer(@RequestBody CustomerUpdatingDao customerUpdatingDao) {
-        customerService.updateCustomerById(customerUpdatingDao);
+    public void updateCustomer(HttpServletRequest request, @RequestBody CustomerUpdatingDao customerUpdatingDao) {
+        String jwt = jwtService.getJwt(request);
+        String username = jwtService.getUsername(jwt);
+        customerService.updateCustomerById(username, customerUpdatingDao, ipService.getIpAddress(request));
     }
 
     @GetMapping("/updatev2-panel")
@@ -137,14 +146,14 @@ public class CustomerController {
         String jwt = jwtService.getJwt(request);
         Long id = jwtService.getId(jwt);
         String username = jwtService.getUsername(jwt);
-        customerService.selfUpdateCustomer(id, username, selfCustomerUpdatingRequest);
+        customerService.selfUpdateCustomer(id, username, selfCustomerUpdatingRequest, ipService.getIpAddress(request));
     }
 
     @PostMapping("/purchase") // musteri
     public void purchaseItem(HttpServletRequest request) {
         String jwt = jwtService.getJwt(request);
         Long id = jwtService.getId(jwt);
-        customerService.purchase(id);
+        customerService.purchase(id, ipService.getIpAddress(request));
     }
 
     @GetMapping("/add-balance-panel")
@@ -158,7 +167,7 @@ public class CustomerController {
     public void addBalance(HttpServletRequest request, @RequestBody AddBalanceRequest addBalanceRequest) {
         String jwt = jwtService.getJwt(request);
         Long customerId = jwtService.getId(jwt);
-        customerService.addBalance(customerId, addBalanceRequest);
+        customerService.addBalance(customerId, addBalanceRequest, ipService.getIpAddress(request));
     }
 
     @GetMapping("/main-panel")
@@ -167,5 +176,4 @@ public class CustomerController {
         mv.setViewName("customer-main-panel");
         return mv;
     }
-
 }
