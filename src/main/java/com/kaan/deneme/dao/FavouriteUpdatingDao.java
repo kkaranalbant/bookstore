@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.dao;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -12,7 +13,8 @@ import lombok.Data;
  */
 @Data
 public class FavouriteUpdatingDao {
-        
-    private Long bookId ;
-    
+
+    @NotNull
+    private Long bookId;
+
 }

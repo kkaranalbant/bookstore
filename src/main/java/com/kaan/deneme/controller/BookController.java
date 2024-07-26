@@ -5,7 +5,7 @@
 package com.kaan.deneme.controller;
 
 import com.kaan.deneme.dao.BookAddingRequest;
-import com.kaan.deneme.dao.BookDeletingRequest;
+import com.kaan.deneme.dao.BookImageDeletingRequest;
 import com.kaan.deneme.dao.BookFilteringRequest;
 import com.kaan.deneme.dao.BookImageAddingRequest;
 import com.kaan.deneme.dao.BookImageResponse;
@@ -171,7 +171,7 @@ public class BookController {
     }
 
     @DeleteMapping("/delete-image")
-    public void deleteImage(HttpServletRequest request, @RequestBody BookDeletingRequest bookDeletingRequest) {
+    public void deleteImage(HttpServletRequest request, @RequestBody BookImageDeletingRequest bookDeletingRequest) {
         try {
             String jwt = jwtService.getJwt(request);
             String username = jwtService.getUsername(jwt);

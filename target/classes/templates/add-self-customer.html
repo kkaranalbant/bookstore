@@ -11,6 +11,7 @@
                 const gender = document.getElementById('gender').value;
                 const birthDate = document.getElementById('birthDate').value;
                 const address = document.getElementById('address').value;
+                const email = document.getElementById('email').value;
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
                 const rePassword = document.getElementById('rePassword').value;
@@ -27,29 +28,23 @@
                     gender: gender,
                     birthDate: birthDate,
                     address: address,
+                    email: email,
                     username: username,
                     password: password
                 };
 
                 try {
                     const response = await fetch('/customer/addv2', {
-
                         method: 'POST',
-
                         headers: {
-
                             'Content-Type': 'application/json',
-
                             'Accept': 'application/json' // Add this line
-
                         },
-
                         body: JSON.stringify(customer)
-
                     });
 
                     if (response.ok) {
-                        alert("Customer information added successfully.");
+                        alert("Customer information added successfully.\nPlease Verify Your Email !");
                         // Optionally, redirect to another page after successful addition
                         // window.location.href = '/success.html';
                     } else {
@@ -63,8 +58,7 @@
     </head>
     <body>
         <h1>Add Customer Information</h1>
-        <form onsubmit="event.preventDefault();
-                addCustomer();">
+        <form onsubmit="event.preventDefault(); addCustomer();">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required><br>
 
@@ -83,6 +77,9 @@
 
             <label for="address">Address:</label>
             <input type="text" id="address" name="address" required><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br>
 
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required><br>

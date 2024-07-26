@@ -4,6 +4,8 @@
  */
 package com.kaan.deneme.dao;
 
+import com.kaan.deneme.validation.CardNo;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -12,5 +14,8 @@ import lombok.Data;
  */
 @Data
 public class CardRemovingDao {
-    private String cardNo ;
+
+    @NotNull
+    @CardNo
+    private String cardNo;
 }

@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.dao;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -11,10 +12,12 @@ import lombok.Data;
  * @author kaan
  */
 @Data
-public class BookDeletingRequest {
+public class BookImageDeletingRequest {
     
+    @NotNull
     private Long bookId ;
     
+    @NotNull
     private String path ;
     
 }

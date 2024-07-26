@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.dao;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.Data;
 
@@ -13,8 +14,10 @@ import lombok.Data;
  */
 @Data
 public class BookImageAddingRequest {
+    @NotNull
     private Long bookId ;
     
+    @NotNull
     private List <byte[]> imageBytes ;
     
 }

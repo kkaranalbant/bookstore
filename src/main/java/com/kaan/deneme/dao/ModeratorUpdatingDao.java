@@ -5,6 +5,10 @@
 package com.kaan.deneme.dao;
 
 import com.kaan.deneme.model.Gender;
+import com.kaan.deneme.validation.Name;
+import com.kaan.deneme.validation.Password;
+import com.kaan.deneme.validation.Username;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -13,12 +17,27 @@ import lombok.Data;
  */
 @Data
 public class ModeratorUpdatingDao {
-   
-    private Long id ;
-    private String name ;
-    private String lastname ;
-    private Gender gender ; 
-    private String username ;
-    private String password ;
-    
+
+    @NotNull
+    private Long id;
+
+    @NotNull
+    @Name
+    private String name;
+
+    @NotNull
+    @Name
+    private String lastname;
+
+    @NotNull
+    private Gender gender;
+
+    @NotNull
+    @Username
+    private String username;
+
+    @NotNull
+    @Password
+    private String password;
+
 }

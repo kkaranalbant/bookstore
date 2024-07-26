@@ -4,6 +4,13 @@
  */
 package com.kaan.deneme.dao;
 
+import com.kaan.deneme.validation.Author;
+import com.kaan.deneme.validation.Balance;
+import com.kaan.deneme.validation.Name;
+import com.kaan.deneme.validation.PageNumber;
+import com.kaan.deneme.validation.PublicationDate;
+import com.kaan.deneme.validation.StockNumber;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Data;
@@ -14,23 +21,36 @@ import lombok.Data;
  */
 @Data
 public class BookAddingRequest {
-        
-    private String name ; 
-    
-    private String author ; 
-    
-    private String isbn ; 
-    
-    private float price ;
-    
-    private int pageNumber ;
-    
-    private LocalDate publicationDate ;
-    
-    private String publisher ; 
-    
-    private int stockNumber ; 
-    
-    private List <byte []> paths ;
-    
+
+    @NotNull
+    @Name
+    private String name;
+
+    @NotNull
+    @Author
+    private String author;
+
+    private String isbn;
+
+    @NotNull
+    @Balance
+    private float price;
+
+    @NotNull
+    @PageNumber
+    private int pageNumber;
+
+    @NotNull
+    @PublicationDate
+    private LocalDate publicationDate;
+
+    @NotNull
+    private String publisher;
+
+    @NotNull
+    @StockNumber
+    private int stockNumber;
+
+    private List<byte[]> paths;
+
 }

@@ -4,10 +4,12 @@
  */
 package com.kaan.deneme.dao;
 
+import jakarta.validation.constraints.NotNull;
+
 /**
  *
  * @author kaan
  */
-public record ElementIdDao (Long id) {
+public record ElementIdDao (@NotNull Long id) {
     
 }

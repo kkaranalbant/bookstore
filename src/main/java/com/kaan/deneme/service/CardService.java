@@ -37,11 +37,7 @@ public class CardService {
     }
 
     public void addCardById(Long customerId, CardAddingDao cardAddingDao, String ip) throws InvalidCredentialsException, NotUniqueCardException {
-        String cardNo = cardAddingDao.getCardNo();
-        if (cardNo.length() != 16) {
-            throw new InvalidCredentialsException();
-        }
-        Optional<Card> cardOptional = cardRepo.findByCardNo(cardNo);
+        Optional<Card> cardOptional = cardRepo.findByCardNo(cardAddingDao.getCardNo());
         if (cardOptional.isPresent()) {
             throw new NotUniqueCardException();
         }
@@ -58,7 +54,7 @@ public class CardService {
             throw new InvalidCredentialsException();
         }
         Card card = new Card();
-        card.setCardNo(cardNo);
+        card.setCardNo(cardAddingDao.getCardNo());
         card.setCvv(cvv);
         card.setMonth(month);
         card.setYear(cardAddingDao.getYear());

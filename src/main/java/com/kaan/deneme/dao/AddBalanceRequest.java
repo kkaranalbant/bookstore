@@ -4,6 +4,9 @@
  */
 package com.kaan.deneme.dao;
 
+import com.kaan.deneme.validation.Balance;
+import com.kaan.deneme.validation.CardNo;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -13,7 +16,11 @@ import lombok.Data;
 @Data
 public class AddBalanceRequest {
     
+    @NotNull
+    @CardNo
     private String cardNo ;
     
+    @NotNull
+    @Balance
     private Integer amount ;
 }

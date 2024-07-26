@@ -4,6 +4,8 @@
  */
 package com.kaan.deneme.dao;
 
+import com.kaan.deneme.validation.CardNo;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -13,12 +15,17 @@ import lombok.Data;
 @Data
 public class CardAddingDao {
     
+    @NotNull
+    @CardNo
     private String cardNo ; 
     
+    @NotNull
     private String cvv ;
     
+    @NotNull
     private byte month ;
     
+    @NotNull
     private int year ;
     
 }

@@ -33,14 +33,8 @@ public class LoginCredentialsService {
 
     private AdminRepo adminRepo;
 
-    private static byte minPassLength;
-
-    private static byte maxPassLength;
-
     static {
         logger = LoggerFactory.getLogger(LoginCredentialsService.class);
-        minPassLength = 8;
-        maxPassLength = 24;
     }
 
     @Autowired
@@ -56,16 +50,14 @@ public class LoginCredentialsService {
         }
         Optional<UserCredentials> userCredentialsOptional = userCredentialsRepo.findByUsername(username);
         if (userCredentialsOptional.isEmpty()) {
-            if (isValidPass(password)) {
-                UserCredentials userCredentials = new UserCredentials();
-                userCredentials.setPerson(person);
-                userCredentials.setUsername(username);
-                userCredentials.setPassword(bCryptPasswordEncoder.encode(password));
-                userCredentials.setRole(role);
-                userCredentialsRepo.save(userCredentials);
-                logger.info("IP address " + ip + " | The user credentials of the person with id number " + person.getId() + " has been added.\n"
-                        + "By : " + subject);
-            }
+            UserCredentials userCredentials = new UserCredentials();
+            userCredentials.setPerson(person);
+            userCredentials.setUsername(username);
+            userCredentials.setPassword(bCryptPasswordEncoder.encode(password));
+            userCredentials.setRole(role);
+            userCredentialsRepo.save(userCredentials);
+            logger.info("IP address " + ip + " | The user credentials of the person with id number " + person.getId() + " has been added.\n"
+                    + "By : " + subject);
         } else {
             throw new InvalidAddingProcessException();
         }
@@ -73,11 +65,11 @@ public class LoginCredentialsService {
     }
 
     public void update(String subject, String oldUsername, String username, String password, String ip) throws InvalidUpdatingProcessException {
-        if (username == null || password == null || !isValidPass(password)) {
+        if (username == null || password == null ) {
             throw new InvalidUpdatingProcessException();
         }
         Optional<UserCredentials> newUsernameCredententialOptional = userCredentialsRepo.findByUsername(username);
-        boolean isUpdatedUsername = !oldUsername.equals(username) ;
+        boolean isUpdatedUsername = !oldUsername.equals(username);
         if (newUsernameCredententialOptional.isPresent() && isUpdatedUsername) {
             throw new InvalidUpdatingProcessException();
         }
@@ -99,24 +91,6 @@ public class LoginCredentialsService {
 
     public UserCredentials get(Person person) {
         return userCredentialsRepo.findByPerson(person).get();
-    }
-
-    private boolean isValidPass(String password) {
-        boolean hasUpperChar = false;
-        boolean hasDigit = false;
-        if (!(password.length() >= minPassLength && password.length() <= maxPassLength)) {
-            return false;
-        }
-        for (int i = 0; i < password.length() && (!hasUpperChar || !hasDigit); i++) {
-            if (Character.isDigit(password.charAt(i))) {
-                hasDigit = true;
-                continue;
-            }
-            if (Character.isUpperCase(password.charAt(i))) {
-                hasUpperChar = true;
-            }
-        }
-        return hasDigit && hasUpperChar;
     }
 
 }

@@ -1,10 +1,11 @@
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/DenemeApplication.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/ApplicationConfig.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/AuthenticationFilter.java
-/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/AuthorizationFilter.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/CustomLogoutSuccessHandler.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/JwtAuthenticationProvider.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/JwtAuthenticationSuccessHandler.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/RecaptchaFilter.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/SecurityFilterConfig.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/config/WebConfig.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/controller/AdminController.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/controller/BasketController.java
@@ -36,7 +37,10 @@
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/LoginCredentialsUpdatingDao.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/ModeratorAddingRequest.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/ModeratorUpdatingDao.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/PasswordResetRequest.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/RecaptchaResponse.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/RegisterRequest.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/ResetPasswordRequest.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/dao/SelfCustomerUpdateRequest.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/BaseException.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/GlobalExceptionHandler.java
@@ -45,6 +49,7 @@
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/InvalidCredentialsException.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/InvalidIdException.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/InvalidUpdatingProcessException.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/InvalidVerificationException.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/NotSufficentBalanceException.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/NotUniqueCardException.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/exception/OutOfStockException.java
@@ -78,9 +83,12 @@
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/CardService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/CommentService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/CustomerService.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/EmailService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/FavouriteService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/IpService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/JwtService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/LoginCredentialsService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/ModeratorService.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/RecaptchaService.java
 /home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/service/UserCredentialsService.java
+/home/kaan/NetBeansProjects/InitializrSpringbootProject/src/main/java/com/kaan/deneme/validation/Card.java

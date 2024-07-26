@@ -4,6 +4,9 @@
  */
 package com.kaan.deneme.dao;
 
+import com.kaan.deneme.validation.Password;
+import com.kaan.deneme.validation.Username;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -12,9 +15,12 @@ import lombok.Data;
  */
 @Data
 public class LoginCredentialsDao {
-    
+    @NotNull
+    @Username
     private String username ; 
     
+    @NotNull
+    @Password
     private String password ; 
     
 }

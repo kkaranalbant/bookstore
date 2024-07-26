@@ -44,7 +44,7 @@ import org.springframework.stereotype.Service;
 public class CustomerService {
 
     private static Logger logger;
-    private static short tokenLength;
+    private static final short TOKEN_LENGTH;
     private static final byte LOWER_CASE;
     private static final byte UPPER_CASE;
     private static final byte DIGIT;
@@ -63,7 +63,7 @@ public class CustomerService {
 
     static {
         logger = LoggerFactory.getLogger(CustomerService.class);
-        tokenLength = 64;
+        TOKEN_LENGTH = 64;
         LOWER_CASE = 0;
         UPPER_CASE = 1;
         DIGIT = 2;
@@ -326,6 +326,10 @@ public class CustomerService {
 
     private int createNumber() {
         return random.nextInt(48, 58);
+    }
+    
+    public static short getTokenLength () {
+        return TOKEN_LENGTH ;
     }
 
 }

@@ -4,11 +4,15 @@
  */
 package com.kaan.deneme.dao;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Data
 public class AddToBasketRequest {
 
+    @NotNull
     private Long id;
 
+    UsernamePasswordAuthenticationFilter filter ;
 }

@@ -4,6 +4,7 @@
  */
 package com.kaan.deneme.dao;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -12,9 +13,10 @@ import lombok.Data;
  */
 @Data
 public class CommentUpdatingDao {
-    
+    @NotNull
     private Long commentId ;
     
+    @NotNull
     private String text ; 
     
 }

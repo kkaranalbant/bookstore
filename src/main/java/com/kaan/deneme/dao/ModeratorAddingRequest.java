@@ -5,6 +5,9 @@
 package com.kaan.deneme.dao;
 
 import com.kaan.deneme.model.Gender;
+import com.kaan.deneme.validation.Name;
+import com.kaan.deneme.validation.Password;
+import com.kaan.deneme.validation.Username;
 import lombok.Data;
 
 /**
@@ -13,9 +16,13 @@ import lombok.Data;
  */
 @Data
 public class ModeratorAddingRequest {
+    @Name
     private String name ;
+    @Name
     private String lastname ;
     private Gender gender ;
+    @Username
     private String username ;
+    @Password
     private String password ;
 }

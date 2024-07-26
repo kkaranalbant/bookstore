@@ -4,6 +4,8 @@
  */
 package com.kaan.deneme.dao;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -13,8 +15,10 @@ import lombok.Data;
 @Data
 public class CommentAddingDao {
     
+    @NotNull
     private Long bookId ;
     
+    @Size(min = 10)
     private String text ;
     
 }

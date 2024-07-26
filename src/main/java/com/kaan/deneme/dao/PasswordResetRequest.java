@@ -4,6 +4,9 @@
  */
 package com.kaan.deneme.dao;
 
+import com.kaan.deneme.validation.Password;
+import com.kaan.deneme.validation.Token;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -12,9 +15,13 @@ import lombok.Data;
  */
 @Data
 public class PasswordResetRequest {
-    
-    private String token ;
-    
-    private String password ;
-    
+
+    @NotNull
+    @Token
+    private String token;
+
+    @NotNull
+    @Password
+    private String password;
+
 }
