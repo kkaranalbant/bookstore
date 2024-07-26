@@ -37,6 +37,9 @@ public class Person {
     private String lastname ;
     @Enumerated (EnumType.STRING)
     private Gender gender ;
+    @Column (name = "Is_Enabled" , nullable = false)
+    private Boolean enabled ;
+    
 
     
 }

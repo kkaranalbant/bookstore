@@ -48,7 +48,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/admin/panel").setViewName("admin-main-panel");
         registry.addViewController("/customer/main-panel").setViewName("customer-main-panel");
         registry.addViewController("/mod/main-panel").setViewName("mod-main-panel");
-        
+        registry.addViewController("/login").setViewName("login");
+        registry.addViewController("/customer/verify").setViewName("verification");
+        registry.addViewController("/customer/send-reset-mail").setViewName("forgot-password-panel");
+        registry.addViewController("/customer/pass-reset-panel").setViewName("reset-password-panel");
     }
 
     @Bean

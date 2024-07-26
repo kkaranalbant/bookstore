@@ -68,7 +68,7 @@ public class UserCredentials implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return person.getEnabled();
     }
 
 }

@@ -72,7 +72,13 @@ public class GlobalExceptionHandler {
     }
     
     @ExceptionHandler (IOException.class) 
-    public ResponseEntity<ErrorResponse> hangleIOException (IOException ex) {
+    public ResponseEntity<ErrorResponse> handleIOException (IOException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST) ;
+    }
+    
+    @ExceptionHandler (InvalidVerificationException.class)
+    public ResponseEntity <ErrorResponse> handleInvalidVerificationException (InvalidVerificationException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST) ;
     }

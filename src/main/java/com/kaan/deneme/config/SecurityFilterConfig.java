@@ -9,7 +9,6 @@ import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 @Configuration
 @EnableWebSecurity
-public class AuthorizationFilter {
+public class SecurityFilterConfig {
 
     private JwtAuthenticationProvider jwtAuthenticationProvider;
 
@@ -32,12 +31,15 @@ public class AuthorizationFilter {
 
     private CustomLogoutSuccessHandler logoutSuccessHandler;
 
+    private RecaptchaFilter recaptchaFilter;
+
     @Autowired
-    public AuthorizationFilter(JwtAuthenticationProvider jwtAuthenticationProvider, AuthenticationFilter authenticationFilter, JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler, CustomLogoutSuccessHandler logoutSuccessHandler) {
+    public SecurityFilterConfig(JwtAuthenticationProvider jwtAuthenticationProvider, AuthenticationFilter authenticationFilter, JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler, CustomLogoutSuccessHandler logoutSuccessHandler, RecaptchaFilter recaptchaFilter) {
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
         this.authenticationFilter = authenticationFilter;
         this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
         this.logoutSuccessHandler = logoutSuccessHandler;
+        this.recaptchaFilter = recaptchaFilter;
     }
 
     @Bean
@@ -45,9 +47,9 @@ public class AuthorizationFilter {
         httpSecurity
                 .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.sessionFixation((sessionFixationCustomizer) -> sessionFixationCustomizer.none()))
-                //.anonymous((anonymousCustomizer) -> anonymousCustomizer.disable())
                 .authenticationProvider(jwtAuthenticationProvider)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(recaptchaFilter, AuthenticationFilter.class)
                 .csrf(csrfCustomizer -> csrfCustomizer.disable())
                 .httpBasic(httpBasicCustomizer -> httpBasicCustomizer.disable())
                 .authorizeHttpRequests(authorize -> authorize
@@ -69,6 +71,7 @@ public class AuthorizationFilter {
                 .requestMatchers("/customer/updatev2-panel").hasAuthority(Role.CUSTOMER.name())
                 .requestMatchers("/customer/purchase", "/customer/add-balance", "/customer/add-balance-panel").hasAuthority(Role.CUSTOMER.name())
                 .requestMatchers("/customer/main-panel").hasAuthority(Role.CUSTOMER.name())
+                .requestMatchers("/customer/verify","/customer/forgot-password","/customer/pass-reset-panel","/customer/send-reset-mail","/customer/reset-password").anonymous()
                 .requestMatchers("/mod/get-all").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/mod/get").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/mod/add").hasAuthority(Role.ADMIN.name())
@@ -93,6 +96,7 @@ public class AuthorizationFilter {
                 .successHandler(jwtAuthenticationSuccessHandler)
                 .permitAll()
                 )
+                .formLogin((formLoginCustomizer) -> formLoginCustomizer.loginPage("/login"))
                 .logout((logout) -> logout.permitAll())
                 .logout((logout) -> logout.logoutSuccessHandler(logoutSuccessHandler)); //                .logout((logout) -> logout.logoutSuccessUrl("/"))
         //                .logout((logoutCustomizer) -> logoutCustomizer.deleteCookies("JSESSIONID", "Authorization"))

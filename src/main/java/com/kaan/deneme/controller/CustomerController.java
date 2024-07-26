@@ -8,8 +8,11 @@ import com.kaan.deneme.dao.AddBalanceRequest;
 import com.kaan.deneme.dao.CustomerAddingRequest;
 import com.kaan.deneme.dao.CustomerUpdatingDao;
 import com.kaan.deneme.dao.ElementIdDao;
+import com.kaan.deneme.dao.PasswordResetRequest;
 import com.kaan.deneme.dao.RegisterRequest;
+import com.kaan.deneme.dao.ResetPasswordRequest;
 import com.kaan.deneme.dao.SelfCustomerUpdateRequest;
+import com.kaan.deneme.exception.InvalidVerificationException;
 import com.kaan.deneme.service.CustomerService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kaan.deneme.model.Customer;
 import com.kaan.deneme.service.IpService;
 import com.kaan.deneme.service.JwtService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -116,8 +121,12 @@ public class CustomerController {
 
     @PostMapping("/addv2") //musteri 
     public ResponseEntity<String> addSelfCustomer(HttpServletRequest request, @RequestBody RegisterRequest registerRequest) {
-        customerService.addSelfCustomer(registerRequest, ipService.getIpAddress(request));
-        return ResponseEntity.ok().body("Successful");
+        try {
+            customerService.addSelfCustomer(registerRequest, ipService.getIpAddress(request));
+        } catch (MessagingException | UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+        }
+        return ResponseEntity.ok().body("Your Verification Token Has Sent To Your Email !");
     }
 
     @GetMapping("/updatev1-panel")
@@ -176,4 +185,50 @@ public class CustomerController {
         mv.setViewName("customer-main-panel");
         return mv;
     }
+
+    @GetMapping("/verify")
+    public ModelAndView makeVerification(@RequestParam String code) {
+        ModelAndView mv = new ModelAndView();
+        String message = null ;
+        try {
+            customerService.emailVerification(code);
+            message = "Your Email Verification process has been completed." ;
+        } catch (InvalidVerificationException ex) {
+            message = "Your Email Verification process could not be completed." ;
+        }
+        mv.addObject("message", message);
+        mv.setViewName("verification");
+        return mv ;
+    }
+    
+    @GetMapping ("/forgot-password")
+    public ModelAndView getForgotPasswordPanel () {
+        ModelAndView mv = new ModelAndView () ;
+        mv.setViewName("forgot-password-panel");
+        return mv ;
+    }
+    
+    @PostMapping ("/send-reset-mail")
+    public void sendResetMail (@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        try {
+            customerService.sendPassResetMail(resetPasswordRequest.getEmail());
+        }
+        catch (MessagingException | UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    @GetMapping ("/pass-reset-panel")
+    public ModelAndView resetPassPanel (@RequestParam String token) {
+        ModelAndView mv = new ModelAndView () ;
+        mv.addObject("token", token);
+        mv.setViewName("reset-password-panel");
+        return mv ;
+    }
+    
+    @PostMapping ("/reset-password")
+    public void resetPass (HttpServletRequest request , @RequestBody PasswordResetRequest passwordResetRequest) {
+        customerService.verifyPasswordReset(passwordResetRequest.getToken() , passwordResetRequest.getPassword(), ipService.getIpAddress(request));
+    }
+    
 }

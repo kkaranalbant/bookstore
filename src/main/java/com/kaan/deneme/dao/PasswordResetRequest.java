@@ -4,8 +4,6 @@
  */
 package com.kaan.deneme.dao;
 
-import com.kaan.deneme.model.Gender;
-import java.time.LocalDate;
 import lombok.Data;
 
 /**
@@ -13,22 +11,10 @@ import lombok.Data;
  * @author kaan
  */
 @Data
-public class RegisterRequest {
-
-    private String name;
-
-    private String lastname;
-
-    private Gender gender;
-
-    private LocalDate birthDate;
-
-    private String address;
-        
-    private String username ;
+public class PasswordResetRequest {
+    
+    private String token ;
     
     private String password ;
     
-    private String email ;
-        
 }

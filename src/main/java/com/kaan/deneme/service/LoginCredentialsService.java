@@ -77,7 +77,8 @@ public class LoginCredentialsService {
             throw new InvalidUpdatingProcessException();
         }
         Optional<UserCredentials> newUsernameCredententialOptional = userCredentialsRepo.findByUsername(username);
-        if (newUsernameCredententialOptional.isPresent()) {
+        boolean isUpdatedUsername = !oldUsername.equals(username) ;
+        if (newUsernameCredententialOptional.isPresent() && isUpdatedUsername) {
             throw new InvalidUpdatingProcessException();
         }
         Optional<UserCredentials> userCredentialsOptional = userCredentialsRepo.findByUsername(oldUsername);

@@ -18,4 +18,8 @@ public interface CustomerRepo extends JpaRepository <Customer , Long> {
     
     public Optional <Customer> findByNameAndLastname (String name , String lastname) ;
     
+    public Optional <Customer> findByVerificationCode (String verificationCode) ;
+    
+    public Optional <Customer> findByEmail (String email) ;
+    
 }

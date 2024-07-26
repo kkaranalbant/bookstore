@@ -16,16 +16,20 @@ import lombok.Data;
  * @author kaan
  */
 @Entity
-@Table(name = "Customer" , uniqueConstraints = {@UniqueConstraint(columnNames = {"Name","Lastname"})})
+@Table(name = "Customer", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"Name", "Lastname"})})
 @Data
-public class Customer extends Person{
-    
-    @Column (name = "BirthDate")
-    private LocalDate birthDate ;
-    @Column (name = "address")
-    private String address ;
-    @Column (name = "balance")
-    private float balance ;
-    
-    
+public class Customer extends Person {
+
+    @Column(name = "BirthDate")
+    private LocalDate birthDate;
+    @Column(name = "address")
+    private String address;
+    @Column(name = "balance")
+    private float balance;
+    @Column(name = "Verification_Code", nullable = true, length = 64)
+    private String verificationCode;
+    @Column (name = "Email" , nullable = false)
+    private String email ;
+
 }
