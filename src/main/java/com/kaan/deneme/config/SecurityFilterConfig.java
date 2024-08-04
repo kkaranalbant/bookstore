@@ -6,12 +6,13 @@ package com.kaan.deneme.config;
 
 import com.kaan.deneme.model.Role;
 import jakarta.servlet.DispatcherType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -33,20 +34,24 @@ public class SecurityFilterConfig {
 
     private RecaptchaFilter recaptchaFilter;
 
-    @Autowired
-    public SecurityFilterConfig(JwtAuthenticationProvider jwtAuthenticationProvider, AuthenticationFilter authenticationFilter, JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler, CustomLogoutSuccessHandler logoutSuccessHandler, RecaptchaFilter recaptchaFilter) {
+    private CustomConcurrentSessionControlStrategy concurrentSessionControlStrategy;
+
+    public SecurityFilterConfig(JwtAuthenticationProvider jwtAuthenticationProvider, AuthenticationFilter authenticationFilter, JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler, CustomLogoutSuccessHandler logoutSuccessHandler, RecaptchaFilter recaptchaFilter, CustomConcurrentSessionControlStrategy customConcurrentSessionControlStrategy) {
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
         this.authenticationFilter = authenticationFilter;
         this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
         this.logoutSuccessHandler = logoutSuccessHandler;
         this.recaptchaFilter = recaptchaFilter;
+        concurrentSessionControlStrategy = customConcurrentSessionControlStrategy ;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.sessionFixation((sessionFixationCustomizer) -> sessionFixationCustomizer.none()))
+                .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.sessionAuthenticationStrategy(concurrentSessionControlStrategy))
+                .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.sessionFixation((sessionFixationCustomizer) -> sessionFixationCustomizer.newSession()))
+                .sessionManagement((sessionManagementCustomizer) -> sessionManagementCustomizer.maximumSessions(1).sessionRegistry(sessionRegistry()).maxSessionsPreventsLogin(true).expiredUrl("/login?expired"))
                 .authenticationProvider(jwtAuthenticationProvider)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(recaptchaFilter, AuthenticationFilter.class)
@@ -71,7 +76,7 @@ public class SecurityFilterConfig {
                 .requestMatchers("/customer/updatev2-panel").hasAuthority(Role.CUSTOMER.name())
                 .requestMatchers("/customer/purchase", "/customer/add-balance", "/customer/add-balance-panel").hasAuthority(Role.CUSTOMER.name())
                 .requestMatchers("/customer/main-panel").hasAuthority(Role.CUSTOMER.name())
-                .requestMatchers("/customer/verify","/customer/forgot-password","/customer/pass-reset-panel","/customer/send-reset-mail","/customer/reset-password").anonymous()
+                .requestMatchers("/customer/verify", "/customer/forgot-password", "/customer/pass-reset-panel", "/customer/send-reset-mail", "/customer/reset-password").anonymous()
                 .requestMatchers("/mod/get-all").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/mod/get").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/mod/add").hasAuthority(Role.ADMIN.name())
@@ -84,7 +89,6 @@ public class SecurityFilterConfig {
                 .requestMatchers("/comment/add", "/comment/update", "/comment/delete", "/comment/getv3").hasAuthority(Role.CUSTOMER.name())
                 .requestMatchers("/comment/getv1").permitAll()
                 .requestMatchers("/comment/getv2").hasAuthority(Role.MOD.name())
-                //.requestMatchers("/comment/getv3").permitAll()
                 .requestMatchers("/card/delete-panel", "/card/delete", "/card/add", "/card/get-all", "card/get-cards-panel", "/card/add-panel").hasAuthority(Role.CUSTOMER.name())
                 .requestMatchers("/book/get-all", "/book/get", "/book/get-image", "/book/filter").permitAll()
                 .requestMatchers("/book/delete", "/book/delete-panel", "/book/add", "/book/update", "/book/add-panel", "/book/get-all-auth", "/book/update-panel", "/book/get-book-json", "/book/add-image", "/book/delete-image").hasAnyAuthority(Role.ADMIN.name(), Role.MOD.name())
@@ -98,11 +102,14 @@ public class SecurityFilterConfig {
                 )
                 .formLogin((formLoginCustomizer) -> formLoginCustomizer.loginPage("/login"))
                 .logout((logout) -> logout.permitAll())
-                .logout((logout) -> logout.logoutSuccessHandler(logoutSuccessHandler)); //                .logout((logout) -> logout.logoutSuccessUrl("/"))
-        //                .logout((logoutCustomizer) -> logoutCustomizer.deleteCookies("JSESSIONID", "Authorization"))
-        //                .logout((logoutCustomizer) -> logoutCustomizer.clearAuthentication(true)) ;
+                .logout((logout) -> logout.logoutSuccessHandler(logoutSuccessHandler));
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
 }

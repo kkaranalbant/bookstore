@@ -70,5 +70,9 @@ public class UserCredentials implements UserDetails {
     public boolean isEnabled() {
         return person.getEnabled();
     }
+    
+    public void setEnabled (boolean enabled) {
+        person.setEnabled(enabled);
+    }
 
 }

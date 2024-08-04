@@ -50,6 +50,7 @@ public class CustomerService {
     private static final byte DIGIT;
     private static final String VERIFY_ENDPOINT;
     private static final String RESET_PASS_ENDPOINT;
+    
 
     private CustomerRepo customerRepo;
     private BasketService basketService;
@@ -67,8 +68,8 @@ public class CustomerService {
         LOWER_CASE = 0;
         UPPER_CASE = 1;
         DIGIT = 2;
-        VERIFY_ENDPOINT = "http://localhost:8080/customer/verify?code=";
-        RESET_PASS_ENDPOINT = "http://localhost:8080/customer/pass-reset-panel?token=";
+        VERIFY_ENDPOINT = "your verify endpoint";
+        RESET_PASS_ENDPOINT = "your reset pass endpoint";
     }
 
     @Autowired
@@ -221,6 +222,19 @@ public class CustomerService {
     public Optional<Customer> getCustomerById(Long customerId) {
         return customerRepo.findById(customerId);
     }
+    
+    @Transactional
+    public void lockAccountAndSendVerificationMailByCustomerId (Long id , String ip) throws MessagingException, UnsupportedEncodingException {
+        Customer customer = customerRepo.findById(id).get() ;
+        customer.setEnabled(false);
+        String token = createToken() ;
+        String url = VERIFY_ENDPOINT.concat(token);
+        emailService.sendVerificationEmail(customer.getEmail(), customer.getName()+" "+customer.getLastname(), url);
+        logger.info("Customer with id number " + customer.getId().longValue() + "'s account locked.\n"
+                + "Verification mail has sent !"
+                + "IP : " + ip);
+    }
+   
 
     public void purchase(Long customerId, String ip) throws NotSufficentBalanceException, OutOfStockException {
 
