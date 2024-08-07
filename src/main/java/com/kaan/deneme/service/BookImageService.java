@@ -45,7 +45,6 @@ public class BookImageService {
         logger = LoggerFactory.getLogger(BookImageService.class);
     }
 
-    @Autowired
     public BookImageService(BookImageRepo bookImageRepo, BookService bookService) {
         this.bookImageRepo = bookImageRepo;
         this.bookService = bookService;

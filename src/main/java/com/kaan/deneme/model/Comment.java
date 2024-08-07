@@ -6,6 +6,7 @@ package com.kaan.deneme.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,16 +23,16 @@ import lombok.Data;
 @Entity
 @Table (name = "Comment") 
 @Data
-public class Comment {
+public class Comment{
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id ; 
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn (name = "BookID")
     private Book book ;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn (name = "CustomerID")
     private Customer customer ;
     

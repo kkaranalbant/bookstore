@@ -32,7 +32,6 @@ import java.util.Optional;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +49,6 @@ public class CustomerService {
     private static final byte DIGIT;
     private static final String VERIFY_ENDPOINT;
     private static final String RESET_PASS_ENDPOINT;
-    
 
     private CustomerRepo customerRepo;
     private BasketService basketService;
@@ -68,11 +66,10 @@ public class CustomerService {
         LOWER_CASE = 0;
         UPPER_CASE = 1;
         DIGIT = 2;
-        VERIFY_ENDPOINT = "your verify endpoint";
-        RESET_PASS_ENDPOINT = "your reset pass endpoint";
+        VERIFY_ENDPOINT = "your-site/customer/verify?code=";
+        RESET_PASS_ENDPOINT = "your-site/customer/pass-reset-panel?token=";
     }
 
-    @Autowired
     public CustomerService(CustomerRepo customerRepo, @Lazy BasketService basketService, BookService bookService, LoginCredentialsService loginCredentialsService, @Lazy CardService cardService, @Lazy FavouriteService favService, @Lazy CommentService commentService, EmailService emailService) {
         this.customerRepo = customerRepo;
         this.basketService = basketService;
@@ -103,6 +100,7 @@ public class CustomerService {
         }
     }
 
+    @Transactional
     public void removeSelfCustomer(Long customerId, String ip) {
         Optional<Customer> customerOptional = customerRepo.findById(customerId);
         Customer customer = customerOptional.get();
@@ -118,6 +116,7 @@ public class CustomerService {
                 + "IP : " + ip);
     }
 
+    @Transactional
     public void updateCustomerById(String username, CustomerUpdatingDao customerUpdatingDao, String ip) throws InvalidUpdatingProcessException, InvalidIdException {
         Long id = customerUpdatingDao.getId();
         Optional<Customer> customerOptional = customerRepo.findById(id);
@@ -153,6 +152,7 @@ public class CustomerService {
         }
     }
 
+    @Transactional
     public void selfUpdateCustomer(Long id, String oldUsername, SelfCustomerUpdateRequest selfCustomerUpdateRequest, String ip) throws InvalidUpdatingProcessException {
         Optional<Customer> customerOptional = customerRepo.findById(id);
         Customer customer = customerOptional.get();
@@ -179,6 +179,7 @@ public class CustomerService {
                 + "IP :" + ip);
     }
 
+    @Transactional
     public void addCustomer(String username, CustomerAddingRequest customerAddingRequest, String ip) throws InvalidAddingProcessException {
         Customer customer = new Customer();
         customer.setName(customerAddingRequest.getName());
@@ -222,22 +223,21 @@ public class CustomerService {
     public Optional<Customer> getCustomerById(Long customerId) {
         return customerRepo.findById(customerId);
     }
-    
+
     @Transactional
-    public void lockAccountAndSendVerificationMailByCustomerId (Long id , String ip) throws MessagingException, UnsupportedEncodingException {
-        Customer customer = customerRepo.findById(id).get() ;
+    public void lockAccountAndSendVerificationMailByCustomerId(Long id, String ip) throws MessagingException, UnsupportedEncodingException {
+        Customer customer = customerRepo.findById(id).get();
         customer.setEnabled(false);
-        String token = createToken() ;
+        String token = createToken();
         String url = VERIFY_ENDPOINT.concat(token);
-        emailService.sendVerificationEmail(customer.getEmail(), customer.getName()+" "+customer.getLastname(), url);
+        emailService.sendVerificationEmail(customer.getEmail(), customer.getName() + " " + customer.getLastname(), url);
         logger.info("Customer with id number " + customer.getId().longValue() + "'s account locked.\n"
                 + "Verification mail has sent !"
                 + "IP : " + ip);
     }
-   
 
+    @Transactional
     public void purchase(Long customerId, String ip) throws NotSufficentBalanceException, OutOfStockException {
-
         List<Book> books = basketService.getBasketByCustomerId(customerId);
         float price = bookService.getAllBookPrice(books);
         Optional<Customer> customerOptional = getCustomerById(customerId);
@@ -255,6 +255,7 @@ public class CustomerService {
         }
     }
 
+    @Transactional
     public void addBalance(Long customerId, AddBalanceRequest addBalanceRequest, String ip) throws InvalidAddingProcessException {
         if (addBalanceRequest.getAmount() <= 0) {
             throw new InvalidAddingProcessException();
@@ -302,6 +303,7 @@ public class CustomerService {
         }
     }
 
+    @Transactional
     public void verifyPasswordReset(String token, String newPassword, String ip) throws InvalidVerificationException, InvalidUpdatingProcessException {
         if (token == null) {
             throw new InvalidVerificationException();
@@ -341,9 +343,9 @@ public class CustomerService {
     private int createNumber() {
         return random.nextInt(48, 58);
     }
-    
-    public static short getTokenLength () {
-        return TOKEN_LENGTH ;
+
+    public static short getTokenLength() {
+        return TOKEN_LENGTH;
     }
 
 }

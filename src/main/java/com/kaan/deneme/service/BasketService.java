@@ -10,12 +10,12 @@ import com.kaan.deneme.model.Basket;
 import com.kaan.deneme.model.Book;
 import com.kaan.deneme.model.Customer;
 import com.kaan.deneme.repository.BasketRepo;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,13 +35,13 @@ public class BasketService {
     private BookService bookService;
     private CustomerService customerService;
 
-    @Autowired
-    public BasketService(BasketRepo basketRepo, BookService bookService, CustomerService customerService) {
+    public BasketService(BasketRepo basketRepo, BookService bookService, CustomerService customerService ) {
         this.basketRepo = basketRepo;
         this.bookService = bookService;
         this.customerService = customerService;
     }
 
+    @Transactional
     public List<Book> getBasketByCustomerId(Long customerId) {
         List<Basket> baskets = basketRepo.findAllByCustomerId(customerId);
         List<Book> books = new ArrayList<>();
@@ -56,19 +56,24 @@ public class BasketService {
         return basketRepo.findAllByBookId(bookId);
     }
 
+    @Transactional
     public void removeFromBasketById(Long customerId, ElementIdDao bookIdDao, String ip) {
         Optional<Basket> basketOptional = basketRepo.findByCustomerIdAndBookId(customerId, bookIdDao.id());
         Basket basket = basketOptional.get();
         basketRepo.delete(basket);
         logger.info("IP address " + ip + " | Book with id number " + bookIdDao.id() + " was deleted from the cart of customer with id number " + customerId + ".");
     }
+    
+    
 
+    @Transactional
     public void truncateBasketByCustomerId(Long customerId, String ip) {
         List<Basket> baskets = basketRepo.findAllByCustomerId(customerId);
         basketRepo.deleteAllInBatch(baskets);
         logger.info("IP address " + ip + " | The basket of the customer with id number " + customerId.longValue() + " was emptied.");
     }
 
+    @Transactional
     public void addToBasketById(Long customerId, ElementIdDao bookIdDao, String ip) throws OutOfStockException {
         Optional<Book> bookOptional = bookService.getBookById(bookIdDao.id());
         Book book = bookOptional.get();
@@ -86,7 +91,7 @@ public class BasketService {
         basketRepo.deleteByBookId(bookId);
         logger.info("IP address " + ip + " | Person with username " + username + " deleted the book with id " + bookId.longValue() + " from all baskets.");
     }
-
+    
     public void deleteBasketByCustomerId(String username, Long customerId, String ip) {
         basketRepo.deleteByCustomerId(customerId);
         logger.info("IP address " + ip + " | Person with username " + username + " deleted the basket of person with id number " + customerId.longValue() + ".");

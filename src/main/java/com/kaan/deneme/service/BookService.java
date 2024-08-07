@@ -20,7 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -39,24 +43,28 @@ public class BookService {
 
     private BookImageService bookImageService;
 
+    private CacheManager cacheManager;
+
     static {
         logger = LoggerFactory.getLogger(BookService.class);
     }
 
-    @Autowired
-    public BookService(BookRepo bookRepo, @Lazy BasketService basketService, @Lazy FavouriteService favouriteService, @Lazy CommentService commentService, @Lazy BookImageService bookImageService) {
+    public BookService(BookRepo bookRepo, @Lazy BasketService basketService, @Lazy FavouriteService favouriteService, @Lazy CommentService commentService, @Lazy BookImageService bookImageService, CacheManager cacheManager) {
         this.bookRepo = bookRepo;
         this.basketService = basketService;
         this.favouriteService = favouriteService;
         this.commentService = commentService;
         this.bookImageService = bookImageService;
+        this.cacheManager = cacheManager;
     }
 
     public Optional<Book> getBookById(Long id) {
         return bookRepo.findById(id);
     }
 
-    public void addBook(String username, BookAddingRequest bookAddingRequest, String ip) throws InvalidAddingProcessException, IOException {
+    @Transactional
+    @CachePut(cacheNames = "books", key = "#book.getId()")
+    public Book addBook(String username, BookAddingRequest bookAddingRequest, String ip) throws InvalidAddingProcessException, IOException {
         Book book = new Book();
         book.setName(bookAddingRequest.getName());
         book.setAuthor(bookAddingRequest.getAuthor());
@@ -69,24 +77,27 @@ public class BookService {
         bookRepo.save(book);
         book = bookRepo.findByName(bookAddingRequest.getName()).get();
         logger.info("Person with username " + username + " has added the book with id number " + book.getId() + " (book name: " + book.getName() + "). IP: " + ip);
-        bookImageService.addBookImage(username, book.getId(), bookAddingRequest.getPaths(),ip);
+        bookImageService.addBookImage(username, book.getId(), bookAddingRequest.getPaths(), ip);
+        return book;
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "books", key = "#elementIdDao.id()")
     public void removeBookById(String username, ElementIdDao elementIdDao, String ip) throws InvalidIdException, IOException {
         if (bookRepo.findById(elementIdDao.id()).isEmpty()) {
             throw new InvalidIdException();
         }
-        bookImageService.removeImagesByBookId(username, elementIdDao.id(),ip);
-        favouriteService.deleteFavsByBookId(username, elementIdDao.id(),ip);
-        basketService.deleteFromBasketsByBookId(username, elementIdDao.id(),ip);
-        commentService.deleteCommentsByBookId(username, elementIdDao.id(),ip);
+        bookImageService.removeImagesByBookId(username, elementIdDao.id(), ip);
+        favouriteService.deleteFavsByBookId(username, elementIdDao.id(), ip);
+        basketService.deleteFromBasketsByBookId(username, elementIdDao.id(), ip);
+        commentService.deleteCommentsByBookId(username, elementIdDao.id(), ip);
         bookRepo.deleteById(elementIdDao.id());
         logger.info("Person with username " + username + " deleted the book with id number " + elementIdDao.id().longValue() + ". IP: " + ip);
     }
 
     @Transactional
-    public void updateBookById(String username, BookUpdatingDao bookUpdatingDao, String ip) throws InvalidUpdatingProcessException, InvalidIdException, IOException {
+    @CachePut(cacheNames = "books", key = "#bookUpdatingDao.getId()")
+    public Book updateBookById(String username, BookUpdatingDao bookUpdatingDao, String ip) throws InvalidUpdatingProcessException, InvalidIdException, IOException {
         Optional<Book> bookOptional = bookRepo.findById(bookUpdatingDao.getOldId());
         if (bookOptional.isEmpty()) {
             throw new InvalidIdException();
@@ -127,16 +138,30 @@ public class BookService {
 
             removeBookById(username, new ElementIdDao(bookUpdatingDao.getOldId()), ip);
 
+            Cache cache = cacheManager.getCache("books");
+
+            cache.evictIfPresent(bookUpdatingDao.getOldId());
+
             logger.info("Information about the book with id number " + bookUpdatingDao.getOldId() + " has been updated. \n"
                     + "New id number : " + bookUpdatingDao.getId() + "\n"
                     + "Subject : " + username + ". IP: " + ip);
 
-            return;
+            return newBook;
         }
 
         bookRepo.save(newBook);
+
+        logger.info("Information about the book with id number " + bookUpdatingDao.getOldId() + " has been updated. \n"
+                + "New id number : " + bookUpdatingDao.getId() + "\n"
+                + "Subject : " + username + ". IP: " + ip);
+
+        Cache cache = cacheManager.getCache("books");
+
+        cache.evictIfPresent(bookUpdatingDao.getOldId());
+        return newBook;
     }
 
+    @Cacheable(cacheNames = {"books"}, key = "#bookIdDao.id()")
     public Book getBookById(ElementIdDao bookIdDao) throws InvalidIdException {
         Optional<Book> bookOptional = bookRepo.findById(bookIdDao.id());
         Book book = bookOptional.get();
@@ -147,7 +172,11 @@ public class BookService {
     }
 
     public List<Book> getAll() {
-        return bookRepo.findAll();
+        List <Book> books =  bookRepo.findAll();
+        for (Book book : books) {
+            cacheUpdatedBook(book);
+        }
+        return books ;
     }
 
     public List<Book> getAllFilteredBooks(String username, BookFilteringRequest bookFilteringRequest, String ip) {
@@ -182,14 +211,22 @@ public class BookService {
         return price;
     }
 
+    @Transactional
     public void decreaseStockNumberOfBooks(List<Book> books) throws OutOfStockException {
         for (Book book : books) {
             if (book.getStockNumber() == 0) {
                 throw new OutOfStockException();
             }
             book.setStockNumber(book.getStockNumber() - 1);
+            bookRepo.save(book);
+            cacheUpdatedBook(book);
             logger.info("New stock number of book with id number a : " + book.getStockNumber());
         }
+    }
+
+    @CachePut(cacheNames = "books", key = "#book.getId()")
+    private Book cacheUpdatedBook(Book book) {
+        return book;
     }
 
 }

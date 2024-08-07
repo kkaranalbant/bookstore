@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.io.Serializable;
 import lombok.Data;
 
 /**
@@ -20,7 +21,7 @@ import lombok.Data;
  */
 @Entity
 @Table(name = "Basket", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"CustomerID", "BookID"})})
+@UniqueConstraint(columnNames = {"CustomerID", "BookID"})})
 @Data
 public class Basket {
 
@@ -30,19 +31,19 @@ public class Basket {
 
     @ManyToOne
     @JoinColumn(name = "CustomerId")
-    private Customer customer ;
+    private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "BookID")
-    private Book book ;
+    private Book book;
 
-    public Basket(Customer customer , Book book) {
-        this.customer = customer ;
-        this.book = book ;
+    public Basket(Customer customer, Book book) {
+        this.customer = customer;
+        this.book = book;
     }
-    
-    public Basket () {
-        
+
+    public Basket() {
+
     }
 
 }

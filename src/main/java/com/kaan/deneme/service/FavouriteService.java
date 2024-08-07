@@ -40,7 +40,6 @@ public class FavouriteService {
         logger = LoggerFactory.getLogger(FavouriteService.class);
     }
 
-    @Autowired
     public FavouriteService(FavouriteRepo favouriteRepo, BookService bookService, CustomerService customerService) {
         this.favouriteRepo = favouriteRepo;
         this.bookService = bookService;
@@ -86,6 +85,7 @@ public class FavouriteService {
         return favouriteRepo.findAllByBookId(bookId);
     }
 
+    @Transactional
     public int getAllFavouriteNumberByBookId(ElementIdDao elementIdDao) throws InvalidIdException {
         if (bookService.getBookById(elementIdDao.id()).isEmpty()) {
             throw new InvalidIdException();

@@ -9,12 +9,14 @@ import com.kaan.deneme.model.Book;
 import com.kaan.deneme.model.Comment;
 import com.kaan.deneme.model.Customer;
 import com.kaan.deneme.repository.CommentRepo;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,13 +33,13 @@ public class CommentService {
         logger = LoggerFactory.getLogger(CommentService.class);
     }
 
-    @Autowired
     public CommentService(CommentRepo commentRepo, CustomerService customerService, BookService bookService) {
         this.commentRepo = commentRepo;
         this.customerService = customerService;
         this.bookService = bookService;
     }
 
+    @Transactional
     public void addComment(Long customerId, CommentAddingDao commentAddingDao, String ip) throws InvalidCommentException {
         String text = commentAddingDao.getText();
         Long bookId = commentAddingDao.getBookId();
@@ -55,6 +57,11 @@ public class CommentService {
         logger.info("Customer with id number " + customerId + " added a comment : " + commentAddingDao.getText() + ". IP: " + ip);
     }
 
+    void addComment(List<Comment> comments) {
+        commentRepo.saveAll(comments);
+    }
+
+    @Transactional
     public void updateComment(Long customerId, CommentUpdatingDao commentUpdatingDao, String ip) throws InvalidCommentException {
         if (commentUpdatingDao.getText().length() < minCommentLength) {
             throw new InvalidCommentException();
@@ -78,6 +85,7 @@ public class CommentService {
         }
     }
 
+    @Transactional
     public void removeComment(Long customerId, ElementIdDao elementIdDao, String ip) throws InvalidIdException {
         if (isCompatibleCustomerAndComment(customerId, elementIdDao.id())) {
             Optional<Comment> commentOptional = commentRepo.findById(elementIdDao.id());
@@ -89,6 +97,8 @@ public class CommentService {
         }
     }
 
+    @Transactional
+    @Cacheable(cacheNames = "commentsByCustomer", key = "#elementIdDao.id()")
     public List<Comment> getCommentsByCustomerId(ElementIdDao elementIdDao) throws InvalidIdException {
         if (customerService.getCustomerById(elementIdDao.id()).isPresent()) {
             return commentRepo.findAllByCustomerId(elementIdDao.id());
@@ -96,6 +106,7 @@ public class CommentService {
         throw new InvalidIdException();
     }
 
+    @Transactional
     public List<Comment> getCommentsByBookId(ElementIdDao elementIdDao) throws InvalidIdException {
         if (bookService.getBookById(elementIdDao.id()).isPresent()) {
             return commentRepo.findAllByBookId(elementIdDao.id());
@@ -113,10 +124,6 @@ public class CommentService {
         commentRepo.deleteByCustomerId(customerId);
         logger.info("All comments of the customer with id number " + customerId + " have been deleted.\n"
                 + "By : " + username + ". IP: " + ip);
-    }
-
-    void addComment(List<Comment> comments) {
-        commentRepo.saveAll(comments);
     }
 
     private boolean isCompatibleCustomerAndComment(Long customerId, Long commentId) {

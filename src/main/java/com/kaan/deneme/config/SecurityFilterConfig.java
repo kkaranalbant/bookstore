@@ -42,7 +42,7 @@ public class SecurityFilterConfig {
         this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
         this.logoutSuccessHandler = logoutSuccessHandler;
         this.recaptchaFilter = recaptchaFilter;
-        concurrentSessionControlStrategy = customConcurrentSessionControlStrategy ;
+        concurrentSessionControlStrategy = customConcurrentSessionControlStrategy;
     }
 
     @Bean

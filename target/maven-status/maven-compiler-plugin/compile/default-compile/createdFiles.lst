@@ -103,6 +103,7 @@ com/kaan/deneme/validation/TokenValidator.class
 com/kaan/deneme/config/JwtAuthenticationSuccessHandler.class
 com/kaan/deneme/exception/InvalidIdException.class
 com/kaan/deneme/service/FavouriteService.class
+com/kaan/deneme/config/RedisConfig.class
 com/kaan/deneme/validation/PublicationDateValidator.class
 com/kaan/deneme/repository/ModeratorRepo.class
 com/kaan/deneme/dao/AddToBasketRequest.class

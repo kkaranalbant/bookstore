@@ -41,18 +41,15 @@ public class ApplicationConfig {
         return new RestTemplate();
     }
 
-    /*
-    olusturulmak zorunda degil . 
-    */
-    
+
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.office365.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername("Your Mail");
-        mailSender.setPassword("Your Mail Pass");
+        mailSender.setUsername("your-mail");
+        mailSender.setPassword("your-pass");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");

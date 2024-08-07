@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +29,12 @@ public class CardService {
         logger = LoggerFactory.getLogger(CardService.class);
     }
 
-    @Autowired
     public CardService(CardRepo cardRepo, @Lazy CustomerService customerService) {
         this.cardRepo = cardRepo;
         this.customerService = customerService;
     }
 
+    @Transactional
     public void addCardById(Long customerId, CardAddingDao cardAddingDao, String ip) throws InvalidCredentialsException, NotUniqueCardException {
         Optional<Card> cardOptional = cardRepo.findByCardNo(cardAddingDao.getCardNo());
         if (cardOptional.isPresent()) {

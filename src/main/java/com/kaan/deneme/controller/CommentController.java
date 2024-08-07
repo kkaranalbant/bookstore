@@ -12,6 +12,7 @@ import com.kaan.deneme.service.CommentService;
 import com.kaan.deneme.service.IpService;
 import com.kaan.deneme.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -65,8 +66,14 @@ public class CommentController {
     }
 
     @GetMapping("/getv1")
-    public List<Comment> getCommentsByBookId(@RequestParam Long id) {
-        return commentService.getCommentsByBookId(new ElementIdDao(id));
+    public List<Comment> getCommentsByBookId(@RequestParam Long id , HttpServletResponse response) {
+        List <Comment> comments =  commentService.getCommentsByBookId(new ElementIdDao(id));
+        byte counter = 1 ;
+        for (Comment comment : comments) {
+            response.addHeader(String.valueOf(counter), "CustomerName"+comment.getCustomer().getName()+"   BookName "+comment.getBook().getName());
+            counter++;
+        }
+        return comments ;
     }
 
     @GetMapping("/getv2")

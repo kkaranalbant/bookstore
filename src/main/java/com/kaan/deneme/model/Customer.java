@@ -17,7 +17,7 @@ import lombok.Data;
  */
 @Entity
 @Table(name = "Customer", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"Name", "Lastname"})})
+@UniqueConstraint(columnNames = {"Name", "Lastname"})})
 @Data
 public class Customer extends Person {
 
@@ -29,7 +29,7 @@ public class Customer extends Person {
     private float balance;
     @Column(name = "Verification_Code", nullable = true, length = 64)
     private String verificationCode;
-    @Column (name = "Email" , nullable = false)
-    private String email ;
+    @Column(name = "Email", nullable = false)
+    private String email;
 
 }
