@@ -1,0 +1,29 @@
+version: "3"
+services:
+  book-store:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
+  redis:
+    image: redis:7.0.15
+    ports:
+      - "6379:6379"
+
+  db:
+    image: mariadb:10.4
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mypass
+      MARIADB_ROOT_PASSWORD: mypass
+      MARIADB_DATABASE: your_db_name
+      MARIADB_USER: useruser
+      MARIADB_PASSWORD: useruser
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:

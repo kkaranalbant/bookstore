@@ -1,3 +1,52 @@
+CREATE TABLE admin (
+    id BIGINT(20) PRIMARY KEY NOT NULL,
+    is_enabled BIT(1) NOT NULL,
+    gender ENUM('FEMALE', 'MALE', 'OTHER') COLLATE utf8mb4_general_ci NULL,
+    lastname VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    name VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL
+);
+
+
+CREATE TABLE customer (
+    id BIGINT(20) PRIMARY KEY NOT NULL,
+    is_enabled BIT(1) NOT NULL,
+    gender ENUM('FEMALE', 'MALE', 'OTHER') COLLATE utf8mb4_general_ci NULL,
+    lastname VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    name VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    address VARCHAR(255) COLLATE utf8mb4_general_ci NULL,
+    balance FLOAT NULL,
+    birth_date DATE NULL,
+    email VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    verification_code VARCHAR(64) COLLATE utf8mb4_general_ci NULL,
+    UNIQUE KEY UKcshnqhp3rw620qyrj2454af1w (name, lastname)
+);
+
+
+CREATE TABLE user_credentials (
+    id BIGINT(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    password VARCHAR(255) COLLATE utf8mb4_general_ci NULL,
+    role ENUM('ADMIN', 'CUSTOMER', 'MOD') COLLATE utf8mb4_general_ci NULL,
+    username VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    person_id BIGINT(20) NULL,
+    UNIQUE KEY UK8pcilw7ay5rs8c4dtrtik21pw (username)
+);
+
+
+CREATE TABLE book (
+    id BIGINT(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    author VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    isbn VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    name VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    page_number INT(11) NOT NULL,
+    price FLOAT NOT NULL,
+    publication_date DATE NOT NULL,
+    publisher VARCHAR(255) COLLATE utf8mb4_general_ci NOT NULL,
+    stock INT(11) NOT NULL,
+    UNIQUE KEY UKehpdfjpu1jm3hijhj4mm0hx9h (isbn),
+    UNIQUE KEY UKwugryet8mf6oi28n00x2eoc4 (name)
+);
+
+
 INSERT INTO customer (id, is_enabled, gender, lastname, name, address, balance, birth_date, email, verification_code)
 SELECT 2, b'1', 'MALE', 'Doe', 'John', '123 Main St', 100.50, '1990-01-01', 'john.doe@example.com', NULL
 WHERE NOT EXISTS (SELECT 1 FROM customer WHERE id = 2);

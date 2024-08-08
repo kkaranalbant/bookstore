@@ -48,7 +48,7 @@ public class ApplicationConfig {
         mailSender.setHost("smtp.office365.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername("your-mail");
+        mailSender.setUsername("your-email");
         mailSender.setPassword("your-pass");
 
         Properties props = mailSender.getJavaMailProperties();
